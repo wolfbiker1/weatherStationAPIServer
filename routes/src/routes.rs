@@ -19,20 +19,16 @@ pub mod route_handler {
     // pub mod update;
     // #[path = "/home/pi/rustserver/routes/src/api/trend.rs"]
     // pub mod trend;
-    #[path = "/home/benni/development/backend/weatherstation_server/routes/src/api/current.rs"]
+    #[path = "/home/benni/development/backend/weatherStationAPIServer/routes/src/api/current.rs"]
     pub mod current;
-    #[path = "/home/benni/development/backend/weatherstation_server/routes/src/api/forecast.rs"]
+    #[path = "/home/benni/development/backend/weatherStationAPIServer/routes/src/api/forecast.rs"]
     pub mod forecast;
-    #[path = "/home/benni/development/backend/weatherstation_server/routes/src/api/history.rs"]
+    #[path = "/home/benni/development/backend/weatherStationAPIServer/routes/src/api/history.rs"]
     pub mod history;
-    #[path = "/home/benni/development/backend/weatherstation_server/routes/src/api/trend.rs"]
+    #[path = "/home/benni/development/backend/weatherStationAPIServer/routes/src/api/trend.rs"]
     pub mod trend;
-    #[path = "/home/benni/development/backend/weatherstation_server/routes/src/api/update.rs"]
+    #[path = "/home/benni/development/backend/weatherStationAPIServer/routes/src/api/update.rs"]
     pub mod update;
-    static DB_ADRESS: (&str, &str) = ("http://192.168.178.66:8086", "weather");
-    // static CONNECTION: Connection = Connection::open("./database/measurements.db").unwrap_or_else(|error| {
-    //     panic!("Could not open database, reason: '{}'", error);
-    // });
     const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 2] = [
         // (
         //     ("GET", "/history", "/:field/:type"),
