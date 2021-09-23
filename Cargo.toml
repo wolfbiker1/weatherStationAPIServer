@@ -1,0 +1,8 @@
+[workspace]
+
+members = [
+    "srv",
+    "mt_handler",
+    "connections",
+    "routes"
+]

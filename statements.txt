@@ -1,0 +1,10 @@
+CREATE TABLE temp (
+        value NUMBER,
+        time TIME NOT NULL);
+
+
+
+insert into temp (value, date) values (33, datetime('now'));
+
+
+select * from pressure where time > '2021-10-18 17:47:42' and time < '2021-10-18 18:00:42';
