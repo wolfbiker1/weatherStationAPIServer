@@ -27,9 +27,8 @@ pub mod history_path_handler {
         min: f32,
     }
 
-    const FIELDS: &[&str; 5] = &[
-        "indoor_temp",
-        "outdoor_temp",
+    const FIELDS: &[&str; 4] = &[
+        "temp",
         "pressure",
         "humidity",
         "brightness",
@@ -41,6 +40,7 @@ pub mod history_path_handler {
         });
 
         let query: String = format!("select distinct date(time) from {}", args[0]);
+        println!("{}", query);
         let mut stmt = conn.prepare(&query).unwrap();
         let mut result: Vec<String> = Vec::new();
         let date_iter = stmt.query_map([], |row| {

@@ -4,9 +4,8 @@ use mt_handler::ThreadPool;
 use std::net::TcpListener;
 use std::{thread, env};
 use rusqlite::{Connection, params};
-const FIELDS: &[&str; 5] = &[
-    "indoor_temp",
-    "outdoor_temp",
+const FIELDS: &[&str; 4] = &[
+    "temp",
     "pressure",
     "humidity",
     "brightness",

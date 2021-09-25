@@ -12,8 +12,8 @@ pub struct Data {
 
 pub fn get_trends() -> HttpResponse {
     let mut data: Vec<f64> = Vec::new();
-    data.push(load_trend_values("indoor_temp"));
-    data.push(load_trend_values("outdoor_temp"));
+    // data.push(load_trend_values("indoor_temp"));
+    data.push(load_trend_values("temp"));
     data.push(load_trend_values("pressure"));
     data.push(load_trend_values("humidity"));
     data.push(load_trend_values("brightness"));
@@ -38,7 +38,7 @@ pub fn get_timestamps() -> HttpResponse {
 pub fn get_current_temp() -> HttpResponse {
     let data = Data {
         time: Local::now(),
-        value: load_current_measurements("outdoor_temp")
+        value: load_current_measurements("temp")
     };
     
     HttpResponse {
@@ -89,8 +89,8 @@ pub fn get_current_brightness() -> HttpResponse {
 
 pub fn public_api() -> HttpResponse {
     let mut data: Vec<f64> = Vec::new();
-    data.push(load_current_measurements("indoor_temp"));
-    data.push(load_current_measurements("outdoor_temp"));
+    // data.push(load_current_measurements("indoor_temp"));
+    data.push(load_current_measurements("temp"));
     data.push(load_current_measurements("pressure"));
     data.push(load_current_measurements("humidity"));
     data.push(load_current_measurements("brightness"));

@@ -19,9 +19,9 @@ pub mod update_path_handler {
         pub static ref OUTDOOR_VALUES_STAMP: RwLock<String> = RwLock::new(String::from("n/a"));
     }
 
-    const FIELDS: &[&str; 5] = &[
-        "indoor_temp",
-        "outdoor_temp",
+    const FIELDS: &[&str; 4] = &[
+        // "indoor_temp",
+        "temp",
         "pressure",
         "humidity",
         "brightness",
@@ -46,8 +46,8 @@ pub mod update_path_handler {
 
     fn update_static_values(field: &str, value: f64) {
         match field {
-            "outdoor_temp" => OUTDOOR_TEMP.store(value, Ordering::SeqCst),
-            "indoor_temp" => INDOOR_TEMP.store(value, Ordering::SeqCst),
+            "temp" => OUTDOOR_TEMP.store(value, Ordering::SeqCst),
+            // "indoor_temp" => INDOOR_TEMP.store(value, Ordering::SeqCst),
             "pressure" => PRESSURE.store(value, Ordering::SeqCst),
             "humidity" => HUMIDITY.store(value, Ordering::SeqCst),
             "brightness" => BRIGHTNESS.store(value, Ordering::SeqCst),
@@ -59,8 +59,8 @@ pub mod update_path_handler {
 
     pub fn load_current_measurements(field: &str) -> f64 {
         match field {
-            "outdoor_temp" => OUTDOOR_TEMP.load(Ordering::SeqCst),
-            "indoor_temp" => INDOOR_TEMP.load(Ordering::SeqCst),
+            "temp" => OUTDOOR_TEMP.load(Ordering::SeqCst),
+            // "indoor_temp" => INDOOR_TEMP.load(Ordering::SeqCst),
             "pressure" => PRESSURE.load(Ordering::SeqCst),
             "humidity" => HUMIDITY.load(Ordering::SeqCst),
             "brightness" => BRIGHTNESS.load(Ordering::SeqCst),
@@ -96,15 +96,15 @@ pub mod update_path_handler {
 
             let t: u16 = rand::thread_rng().gen_range(13..24);
             let query0: String = format!(
-                "insert into outdoor_temp (time, value) values (datetime('now','localtime', '-{} minutes'), {})",
+                "insert into temp (time, value) values (datetime('now','localtime', '-{} minutes'), {})",
                 i, t
             );
-            let query: String = format!(
-                "insert into indoor_temp (time, value) values (datetime('now','localtime', '-{} minutes'), {})",
-                i, t
-            );
+            // let query: String = format!(
+            //     "insert into indoor_temp (time, value) values (datetime('now','localtime', '-{} minutes'), {})",
+            //     i, t
+            // );
             let res = conn.execute(&query0, params![]);
-            let res = conn.execute(&query, params![]);
+            // let res = conn.execute(&query, params![]);
 
             let h: u16 = rand::thread_rng().gen_range(50..90);
             let query: String = format!(
@@ -161,8 +161,8 @@ pub mod update_path_handler {
     pub fn update(measurements: Measurements) {
         for field in FIELDS {
             let value: f64 = match *field {
-                "outdoor_temp" => measurements.outdoor_temp.parse::<f64>().unwrap(),
-                "indoor_temp" => measurements.indoor_temp.parse::<f64>().unwrap(),
+                "temp" => measurements.outdoor_temp.parse::<f64>().unwrap(),
+                // "indoor_temp" => measurements.indoor_temp.parse::<f64>().unwrap(),
                 "pressure" => measurements.pressure.parse::<f64>().unwrap(),
                 "humidity" => measurements.humidity.parse::<f64>().unwrap(),
                 "brightness" => measurements.brightness.parse::<f64>().unwrap(),
