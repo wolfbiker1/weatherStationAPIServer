@@ -29,7 +29,7 @@ pub mod route_handler {
     pub mod trend;
     #[path = "/home/benni/development/backend/weatherStationAPIServer/routes/src/api/update.rs"]
     pub mod update;
-    const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 2] = [
+    const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 3] = [
         // (
         //     ("GET", "/history", "/:field/:type"),
         //     history::history_path_handler::peaks,
@@ -42,6 +42,11 @@ pub mod route_handler {
             // left: start value
             ("GET", "/hist_range", "/:field/:date_start/:time_start/:date_end/:time_end"),
             history::history_path_handler::history_range,
+        ),
+        (
+            // left: start value
+            ("GET", "/available_dates/for", "/:field"),
+            history::history_path_handler::available_dates,
         ),
     ];
 

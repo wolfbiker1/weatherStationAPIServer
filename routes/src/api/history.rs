@@ -16,6 +16,11 @@ pub mod history_path_handler {
     }
 
     #[derive(Debug, Serialize, Deserialize)]
+    struct Dates {
+        date: String,
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
     struct Peaks {
         max: f32,
         avg: f32,
@@ -29,6 +34,31 @@ pub mod history_path_handler {
         "humidity",
         "brightness",
     ];
+
+    pub fn available_dates(args: Vec<&str>) -> HttpResponse {
+        let conn = Connection::open("./database/measurements.db").unwrap_or_else(|error| {
+            panic!("Could not open database, reason: '{}'", error);
+        });
+
+        let query: String = format!("select distinct date(time) from {}", args[0]);
+        let mut stmt = conn.prepare(&query).unwrap();
+        let mut result: Vec<String> = Vec::new();
+        let date_iter = stmt.query_map([], |row| {
+            let d = Dates {
+                date: row.get(0).unwrap(),
+            };
+            Ok(d)
+        });
+        for date in date_iter.unwrap() {
+            let p = date.unwrap();
+            result.push(serde_json::to_string(&p).unwrap());
+        }
+        HttpResponse {
+            status: String::from("HTTP/2 200 OK"),
+            content_type: String::from("Content-Type: 'text/plain'"),
+            content: format!("{:?}", result),
+        }
+    }
 
     ///
     /// 0 -> field (temp, ...)
