@@ -15,7 +15,7 @@ pub mod connection_handler {
         let mut buffer = [0; 1024];
         stream.read(&mut buffer).unwrap();
         let req = http::wrap_requests(&buffer);
-        
+
         let response: http::HttpResponse =
             routes::route_handler::redirect_to_handler((&req.get_type(), &req.get_route()));
 

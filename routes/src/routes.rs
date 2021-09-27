@@ -3,9 +3,9 @@ pub mod route_handler {
     type RequestHandler = fn() -> HttpResponse;
     type RequestIdentifierWithParam = (&'static str, &'static str, &'static str);
     type RequestHandlerWithParam = fn(Vec<&str>) -> HttpResponse;
-    
-    use rusqlite::{Connection};
+
     use crate::http::HttpResponse;
+    use rusqlite::Connection;
     use std::net::UdpSocket;
 
     // JUST A WORKAROUND
@@ -29,7 +29,7 @@ pub mod route_handler {
     pub mod trend;
     #[path = "/home/benni/development/backend/weatherStationAPIServer/routes/src/api/update.rs"]
     pub mod update;
-    const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 3] = [
+    const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 2] = [
         // (
         //     ("GET", "/history", "/:field/:type"),
         //     history::history_path_handler::peaks,
@@ -40,21 +40,18 @@ pub mod route_handler {
         ),
         (
             // left: start value
-            ("GET", "/hist_range", "/:field/:date_start/:time_start/:date_end/:time_end"),
+            (
+                "GET",
+                "/hist_range",
+                "/:field/:date_start/:time_start/:date_end/:time_end",
+            ),
             history::history_path_handler::history_range,
-        ),
-        (
-            // left: start value
-            ("GET", "/available_dates/for", "/:field"),
-            history::history_path_handler::available_dates,
         ),
     ];
 
-    const POST_ROUTES_WITH_PARAM: [(RequestIdentifier, RequestHandler); 1] = [(
-        ("POST", "/insert"),
-        update::update_path_handler::insert,
-    )];
-    const ROUTES: [(RequestIdentifier, RequestHandler); 9] = [
+    const POST_ROUTES_WITH_PARAM: [(RequestIdentifier, RequestHandler); 1] =
+        [(("POST", "/insert"), update::update_path_handler::insert)];
+    const ROUTES: [(RequestIdentifier, RequestHandler); 10] = [
         (("GET", "/current"), current::public_api),
         (("GET", "/temp"), current::get_current_temp),
         (("GET", "/pressure"), current::get_current_pressure),
@@ -63,10 +60,13 @@ pub mod route_handler {
         (("GET", "/timestamps"), current::get_timestamps),
         (("GET", "/peaks"), history::history_path_handler::peaks),
         (("GET", "/trend/current"), current::get_trends),
-        // (("GET", "/foo"), history::history_path_handler::history_values),
         (
             ("GET", "/forecast"),
             forecast::forecast_handler::calc_forecast,
+        ),
+        (
+            ("GET", "/available_dates/"),
+            history::history_path_handler::available_dates,
         ),
     ];
 

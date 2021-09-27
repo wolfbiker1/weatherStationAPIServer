@@ -5,9 +5,9 @@ pub mod history_path_handler {
     use async_std::task;
     use rusqlite::Connection;
     use serde::{Deserialize, Serialize};
+    use serde_json::json;
     use serde_json::Value;
     use std::str;
-    use serde_json::json;
 
     #[derive(Debug, Serialize, Deserialize)]
     struct Point {
@@ -21,42 +21,72 @@ pub mod history_path_handler {
     }
 
     #[derive(Debug, Serialize, Deserialize)]
+    struct DatesCollection {
+        temp: serde_json::Value,
+        pressure: serde_json::Value,
+        humidity: serde_json::Value,
+        brightness: serde_json::Value
+    }
+
+    impl DatesCollection {
+        pub fn new() -> DatesCollection {
+            DatesCollection {
+                temp: json!({"foo": "bar"}),
+                pressure: json!({"foo": "bar"}),
+                humidity: json!({"foo": "bar"}),
+                brightness: json!({"foo": "bar"})
+            }
+        }
+        pub fn change_value(mut self, field: &str, value: Vec<String>) -> DatesCollection {
+            match field {
+                "temp" => self.temp = serde_json::Value::String(serde_json::to_string(&value).unwrap()),
+                "pressure" => self.pressure = serde_json::Value::String(serde_json::to_string(&value).unwrap()),
+                "humidity" => self.humidity = serde_json::Value::String(serde_json::to_string(&value).unwrap()),
+                "brightness" => self.brightness = serde_json::Value::String(serde_json::to_string(&value).unwrap()),
+                _ => {}
+            }
+            self
+        } 
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
     struct Peaks {
         max: f32,
         avg: f32,
         min: f32,
     }
 
-    const FIELDS: &[&str; 4] = &[
-        "temp",
-        "pressure",
-        "humidity",
-        "brightness",
-    ];
+    const FIELDS: &[&str; 4] = &["temp", "pressure", "humidity", "brightness"];
 
-    pub fn available_dates(args: Vec<&str>) -> HttpResponse {
+    pub fn available_dates() -> HttpResponse {
         let conn = Connection::open("./database/measurements.db").unwrap_or_else(|error| {
             panic!("Could not open database, reason: '{}'", error);
         });
 
-        let query: String = format!("select distinct date(time) from {}", args[0]);
-        println!("{}", query);
-        let mut stmt = conn.prepare(&query).unwrap();
-        let mut result: Vec<String> = Vec::new();
-        let date_iter = stmt.query_map([], |row| {
-            let d = Dates {
-                date: row.get(0).unwrap(),
-            };
-            Ok(d)
-        });
-        for date in date_iter.unwrap() {
-            let p = date.unwrap();
-            result.push(serde_json::to_string(&p).unwrap());
+        let mut dt: DatesCollection = DatesCollection::new();
+        for f in FIELDS {
+            let mut result: Vec<String> = Vec::new();
+            let query: String = format!("select distinct date(time) from {}", f);
+            println!("{}", query);
+            let mut stmt = conn.prepare(&query).unwrap();
+            let date_iter = stmt.query_map([], |row| {
+                let d = Dates {
+                    date: row.get(0).unwrap(),
+                };
+                Ok(d)
+            });
+            for date in date_iter.unwrap() {
+                let p = date.unwrap();
+                // dt = dt.change_value(f, json!({*f: serde_json::to_string(&p).unwrap()}));
+                // result.push(serde_json::to_string(&p.date).unwrap().clone());
+                result.push(p.date);
+            }
+            dt = dt.change_value(f, result);
         }
         HttpResponse {
             status: String::from("HTTP/2 200 OK"),
             content_type: String::from("Content-Type: 'text/plain'"),
-            content: format!("{:?}", result),
+            content: format!("{:?}", serde_json::to_string(&dt).unwrap()),
         }
     }
 
@@ -71,7 +101,6 @@ pub mod history_path_handler {
 
         let mut result: Vec<String> = Vec::new();
         for field in FIELDS {
-
             let query: String = format!("select max(value), avg(value), min(value) from {}", field);
             let mut stmt = conn.prepare(&query).unwrap();
             let peak_iter = stmt.query_map([], |row| {
@@ -127,16 +156,16 @@ pub mod history_path_handler {
         }
     }
 
-
-
-
     // query: select time from pressure where time > '2021-09-19 17:14:57' and  time < '2021-09-19 17:17:57';
     pub fn history_range(args: Vec<&str>) -> HttpResponse {
         let conn = Connection::open("./database/measurements.db").unwrap_or_else(|error| {
             panic!("Could not open database, reason: '{}'", error);
         });
 
-        let query: String = format!("select * from {} where time > '{} {}' and time < '{} {}'", args[0], args[1], args[2], args[3], args[4]);
+        let query: String = format!(
+            "select * from {} where time > '{} {}' and time < '{} {}'",
+            args[0], args[1], args[2], args[3], args[4]
+        );
         println!("{}", query);
         let mut stmt = conn.prepare(&query).unwrap();
         let mut result: Vec<String> = Vec::new();
