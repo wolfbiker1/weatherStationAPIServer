@@ -5,7 +5,6 @@ pub mod route_handler {
     type RequestHandlerWithParam = fn(Vec<&str>) -> HttpResponse;
 
     use crate::http::HttpResponse;
-    use rusqlite::Connection;
     use std::net::UdpSocket;
 
     // JUST A WORKAROUND

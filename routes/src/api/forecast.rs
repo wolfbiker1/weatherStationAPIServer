@@ -2,17 +2,12 @@
 use super::trend::trend_handler::calc_trend;
 use super::update::update_path_handler::load_current_measurements;
 pub mod forecast_handler {
-    use super::calc_trend;
     use super::load_current_measurements;
-    use async_std::task;
-    use serde_json::Value;
     use std::{thread, time};
     use atomic_float::AtomicF64;
     use std::sync::atomic::Ordering;
     use crate::http::HttpResponse;
     const TEN_MINUTES: std::time::Duration = time::Duration::from_secs(600);
-    const DB_ADRESS: &str = "http://192.168.178.67:8086";
-    const DB_NAME: &str = "weather";
     
     pub static OUTDOOR_TEMP_TREND: AtomicF64 = AtomicF64::new(0.0);
     pub static INDOOR_TEMP_TREND: AtomicF64 = AtomicF64::new(0.0);

@@ -12,7 +12,6 @@ pub struct Data {
 
 pub fn get_trends() -> HttpResponse {
     let mut data: Vec<f64> = Vec::new();
-    // data.push(load_trend_values("indoor_temp"));
     data.push(load_trend_values("temp"));
     data.push(load_trend_values("pressure"));
     data.push(load_trend_values("humidity"));

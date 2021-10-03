@@ -1,12 +1,8 @@
-use super::trend::trend_handler::calc_trend;
 pub mod history_path_handler {
-    use super::calc_trend;
     use crate::http::HttpResponse;
-    use async_std::task;
     use rusqlite::Connection;
     use serde::{Deserialize, Serialize};
     use serde_json::json;
-    use serde_json::Value;
     use std::str;
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -77,8 +73,6 @@ pub mod history_path_handler {
             });
             for date in date_iter.unwrap() {
                 let p = date.unwrap();
-                // dt = dt.change_value(f, json!({*f: serde_json::to_string(&p).unwrap()}));
-                // result.push(serde_json::to_string(&p.date).unwrap().clone());
                 result.push(p.date);
             }
             dt = dt.change_value(f, result);
@@ -104,7 +98,6 @@ pub mod history_path_handler {
             let query: String = format!("select max(value), avg(value), min(value) from {}", field);
             let mut stmt = conn.prepare(&query).unwrap();
             let peak_iter = stmt.query_map([], |row| {
-                // println!("{:?}", row.get(0));
                 let p = Peaks {
                     max: row.get(0).unwrap(),
                     avg: row.get(1).unwrap(),
@@ -114,12 +107,12 @@ pub mod history_path_handler {
             });
             for peak in peak_iter.unwrap() {
                 let p = peak.unwrap();
-                let foo = json!({
+                let peak_as_json = json!({
                     *field: {
                     "content": p
                     }
                 });
-                result.push(serde_json::to_string(&foo).unwrap());
+                result.push(serde_json::to_string(&peak_as_json).unwrap());
             }
         }
         HttpResponse {
