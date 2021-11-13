@@ -6,28 +6,8 @@ pub mod route_handler {
 
     use crate::http::HttpResponse;
     use std::net::UdpSocket;
+    use crate::api::{current, forecast, history, update};
 
-    // JUST A WORKAROUND
-    // #[path = "/home/pi/rustserver/routes/src/api/current.rs"]
-    // pub mod current;
-    // #[path = "/home/pi/rustserver/routes/src/api/history.rs"]
-    // pub mod history;
-    // #[path = "/home/pi/rustserver/routes/src/api/forecast.rs"]
-    // pub mod forecast;
-    // #[path = "/home/pi/rustserver/routes/src/api/update.rs"]
-    // pub mod update;
-    // #[path = "/home/pi/rustserver/routes/src/api/trend.rs"]
-    // pub mod trend;
-    #[path = "/home/benni/development/backend/weatherStationAPIServer/routes/src/api/current.rs"]
-    pub mod current;
-    #[path = "/home/benni/development/backend/weatherStationAPIServer/routes/src/api/forecast.rs"]
-    pub mod forecast;
-    #[path = "/home/benni/development/backend/weatherStationAPIServer/routes/src/api/history.rs"]
-    pub mod history;
-    #[path = "/home/benni/development/backend/weatherStationAPIServer/routes/src/api/trend.rs"]
-    pub mod trend;
-    #[path = "/home/benni/development/backend/weatherStationAPIServer/routes/src/api/update.rs"]
-    pub mod update;
     const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 2] = [
         // (
         //     ("GET", "/history", "/:field/:type"),

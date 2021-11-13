@@ -1,4 +1,6 @@
 pub mod routes;
+pub mod api;
+// use api::history;
 // extern crate statistic;
 #[macro_use]
 extern crate lazy_static;
