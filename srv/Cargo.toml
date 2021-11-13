@@ -11,4 +11,3 @@ mt_handler = { path = "../mt_handler" }
 connections = { path = "../connections" }
 routes = { path = "../routes" }
 rusqlite = "0.25.3"
-influxdb = { version = "0.4.0", features = ["derive"] }
