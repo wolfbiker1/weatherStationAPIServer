@@ -342,6 +342,7 @@ dependencies = [
 name = "connections"
 version = "0.1.0"
 dependencies = [
+ "inet",
  "influxdb",
  "routes",
 ]
@@ -901,6 +902,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "inet"
+version = "0.1.0"
+
+[[package]]
 name = "infer"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -984,6 +989,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0de8b303297635ad57c9f5059fd9cee7a47f8e8daa09df0fcd07dd39fb22977f"
 dependencies = [
  "log",
+]
+
+[[package]]
+name = "lang"
+version = "0.1.0"
+dependencies = [
+ "inet",
 ]
 
 [[package]]
@@ -1423,6 +1435,8 @@ dependencies = [
  "async-std",
  "atomic_float",
  "chrono",
+ "inet",
+ "lang",
  "lazy_static",
  "rand 0.8.4",
  "regex",

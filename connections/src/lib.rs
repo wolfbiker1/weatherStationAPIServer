@@ -1,13 +1,17 @@
-pub mod connection_handler {
-    use ::routes::{http, routes};
+pub mod udp;
+
+pub mod connection_manager {
+    use ::inet::protocoll::http;
+    use ::routes::routes;
+    use super::udp;
     use std::io::prelude::*;
     use std::net::TcpStream;
     use std::str;
     const CORS_HEADER: &str = "Access-Control-Allow-Origin: *";
 
-    pub fn init_udp_connection(ip: String, port: String) {
-        routes::route_handler::udp_listener(ip, port);
-    }
+    // pub fn init_udp_connection(ip: String, port: String) {
+    //     udp::udp_listener(ip, port);
+    // }
     pub fn init_forecast_handler() {
         routes::route_handler::forecast_calculator();
     }

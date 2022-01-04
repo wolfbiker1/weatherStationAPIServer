@@ -1,23 +1,19 @@
 pub mod update_path_handler {
-    use async_std::task;
     use atomic_float::AtomicF64;
-    use chrono::{DateTime, Utc};
     use rusqlite::{params, Connection, Result};
     use serde::{Deserialize, Serialize};
     use std::str;
     use std::sync::atomic::Ordering;
-    use std::sync::RwLock;
     pub static OUTDOOR_TEMP: AtomicF64 = AtomicF64::new(0.0);
     pub static INDOOR_TEMP: AtomicF64 = AtomicF64::new(0.0);
     pub static PRESSURE: AtomicF64 = AtomicF64::new(0.0);
     pub static HUMIDITY: AtomicF64 = AtomicF64::new(0.0);
     pub static BRIGHTNESS: AtomicF64 = AtomicF64::new(0.0);
-    use crate::http::HttpResponse;
-    use chrono::{Duration, Local};
+    use ::inet::protocoll::http::HttpResponse;
     use rand::Rng; // 0.8.0
-    lazy_static! {
-        pub static ref OUTDOOR_VALUES_STAMP: RwLock<String> = RwLock::new(String::from("n/a"));
-    }
+                   // lazy_static! {
+                   //     pub static ref OUTDOOR_VALUES_STAMP: RwLock<String> = RwLock::new(String::from("n/a"));
+                   // }
 
     const FIELDS: &[&str; 4] = &[
         // "indoor_temp",
@@ -68,18 +64,6 @@ pub mod update_path_handler {
         }
     }
 
-    pub fn load_current_timestamps(field: &str) -> String {
-        match field {
-            "outdoor_values" => OUTDOOR_VALUES_STAMP.write().unwrap().to_string(),
-            _ => String::from("n/a"),
-        }
-    }
-
-    pub fn update_timestamps(timestamps: Timestamps) {
-        let mut stamp = OUTDOOR_VALUES_STAMP.write().unwrap();
-        *stamp = timestamps.outdoor_values;
-    }
-
     pub fn insert() -> HttpResponse {
         let conn = Connection::open("./database/measurements.db").unwrap_or_else(|error| {
             panic!("Could not open database, reason: '{}'", error);
@@ -122,10 +106,7 @@ pub mod update_path_handler {
             match res {
                 Ok(_) => {}
                 Err(msg) => {
-                    println!(
-                        "Could not insert value from {}, reason: '{}'",
-                        n, msg
-                    )
+                    println!("Could not insert value from {}, reason: '{}'", n, msg)
                 }
             }
         }
@@ -162,7 +143,6 @@ pub mod update_path_handler {
         for field in FIELDS {
             let value: f64 = match *field {
                 "temp" => measurements.outdoor_temp.parse::<f64>().unwrap(),
-                // "indoor_temp" => measurements.indoor_temp.parse::<f64>().unwrap(),
                 "pressure" => measurements.pressure.parse::<f64>().unwrap(),
                 "humidity" => measurements.humidity.parse::<f64>().unwrap(),
                 "brightness" => measurements.brightness.parse::<f64>().unwrap(),

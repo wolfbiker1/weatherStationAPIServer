@@ -1,12 +1,16 @@
-use connections::connection_handler;
+use connections::{connection_manager, udp};
 use mt_handler::ThreadPool;
 // use statistic::forecast;
 use rusqlite::{params, Connection};
 use std::net::TcpListener;
 use std::{env, thread};
+use std::sync::mpsc::channel;
 const FIELDS: &[&str; 4] = &["temp", "pressure", "humidity", "brightness"];
 
 fn main() {
+
+    let (udp_sender, udp_receiver) = channel();
+
     let args: Vec<String> = env::args().collect();
     let ip: String = args[1].clone();
     let srv_port: String = args[2].clone();
@@ -15,12 +19,9 @@ fn main() {
     let server_adress = format!("{}:{}", ip, srv_port);
     let listener = TcpListener::bind(&server_adress).unwrap();
     let pool = ThreadPool::new(4);
-    thread::spawn(|| {
-        // connection_handler::init_forecast_handler();
-    });
 
     thread::spawn(|| {
-        connection_handler::init_udp_connection(ip, udp_port);
+        udp::start_udp_listener(ip, udp_port, udp_sender);
     });
 
     // check db
