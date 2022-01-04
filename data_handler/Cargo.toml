@@ -1,5 +1,5 @@
 [package]
-name = "routes"
+name = "data_handler"
 version = "0.1.0"
 authors = ["wolfbiker1 <be631wil@htwg-konstanz.de>"]
 edition = "2018"

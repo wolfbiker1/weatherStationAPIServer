@@ -342,9 +342,9 @@ dependencies = [
 name = "connections"
 version = "0.1.0"
 dependencies = [
+ "data_handler",
  "inet",
  "influxdb",
- "routes",
 ]
 
 [[package]]
@@ -448,6 +448,23 @@ checksum = "e77a43b28d0668df09411cb0bc9a8c2adc40f9a048afe863e05fd43251e8e39c"
 dependencies = [
  "cfg-if 1.0.0",
  "num_cpus",
+]
+
+[[package]]
+name = "data_handler"
+version = "0.1.0"
+dependencies = [
+ "async-std",
+ "atomic_float",
+ "chrono",
+ "inet",
+ "lang",
+ "lazy_static",
+ "rand 0.8.4",
+ "regex",
+ "rusqlite",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -1429,23 +1446,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "routes"
-version = "0.1.0"
-dependencies = [
- "async-std",
- "atomic_float",
- "chrono",
- "inet",
- "lang",
- "lazy_static",
- "rand 0.8.4",
- "regex",
- "rusqlite",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "rusqlite"
 version = "0.25.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1634,8 +1634,8 @@ name = "srv"
 version = "0.1.0"
 dependencies = [
  "connections",
+ "data_handler",
  "mt_handler",
- "routes",
  "rusqlite",
 ]
 

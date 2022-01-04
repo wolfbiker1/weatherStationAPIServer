@@ -3,8 +3,11 @@ use mt_handler::ThreadPool;
 // use statistic::forecast;
 use rusqlite::{params, Connection};
 use std::net::TcpListener;
+
 use std::{env, thread};
 use std::sync::mpsc::channel;
+
+use data_handler::udp::update::listen_for_new_measurement;
 const FIELDS: &[&str; 4] = &["temp", "pressure", "humidity", "brightness"];
 
 fn main() {
@@ -22,6 +25,9 @@ fn main() {
 
     thread::spawn(|| {
         udp::start_udp_listener(ip, udp_port, udp_sender);
+    });
+    thread::spawn(|| {
+        listen_for_new_measurement(udp_receiver);
     });
 
     // check db
@@ -50,7 +56,7 @@ fn main() {
     for stream in listener.incoming() {
         let stream = stream.unwrap();
         pool.execute(|| {
-            connection_handler::handle_connection(stream);
+            connection_manager::handle_connection(stream);
         });
     }
 }
