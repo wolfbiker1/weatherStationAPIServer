@@ -1,4 +1,5 @@
 use atomic_float::AtomicF64;
+use chrono::format::format;
 use std::{io::{Cursor, Read, Seek, SeekFrom, Write}, sync::mpsc::Receiver};
 use super::super::FIELDS;
 use std::io::prelude::*;
@@ -8,25 +9,10 @@ pub static PRESSURE: AtomicF64 = AtomicF64::new(0.0);
 pub static HUMIDITY: AtomicF64 = AtomicF64::new(0.0);
 pub static BRIGHTNESS: AtomicF64 = AtomicF64::new(0.0);
 
-fn write_ten_bytes_at_end<W: Write + Seek>(writer: &mut W) -> std::io::Result<()> {
-    writer.seek(SeekFrom::End(-10))?;
 
-    for i in 0..10 {
-        writer.write(&[i])?;
-    }
-
-    // all went well
+pub fn update_static_values(field_name: &str, value: f64) -> std::io::Result<()> {
+    let path = format!("{}/{}/{}", std::env::current_dir().unwrap().display(), "data", field_name);
+    let mut file = std::fs::File::create(path)?;
+    file.write_all(&value.to_ne_bytes())?;
     Ok(())
-}
-
-
-fn mem_buffer_listener (receiver: Receiver<u8>) {
-    let mock_file: Vec<f64> = Vec::with_capacity(FIELDS.len()); 
-    let mut c = Cursor::new(mock_file);
-    c.set_position(0);
-
-    for value in receiver {
-        // write_ten_bytes_at_end(&mut c);
-    }
-
 }

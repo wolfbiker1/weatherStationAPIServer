@@ -3,9 +3,9 @@ use mt_handler::ThreadPool;
 // use statistic::forecast;
 use rusqlite::{params, Connection};
 use std::net::TcpListener;
-
-use std::{env, thread};
+use std::process::Command;
 use std::sync::mpsc::channel;
+use std::{env, thread};
 
 use data_handler::udp::update::listen_for_new_measurement;
 // use data_handler::global::current::
@@ -14,7 +14,7 @@ const FIELDS: &[&str; 4] = &["temp", "pressure", "humidity", "brightness"];
 
 fn main() {
     let (udp_sender, udp_receiver) = channel();
-    let (current_sender, current_receiver) = channel();
+    // let (current_sender, current_receiver) = channel();
 
     let args: Vec<String> = env::args().collect();
     let ip: String = args[1].clone();
@@ -25,18 +25,25 @@ fn main() {
     let listener = TcpListener::bind(&server_adress).unwrap();
     let pool = ThreadPool::new(4);
 
-    thread::spawn(|| {
-        udp::start_udp_listener(ip, udp_port, udp_sender);
-    });
-    thread::spawn(|| {
-        listen_for_new_measurement(udp_receiver, current_sender);
-    });
+    /********* FS PREPARATION *************/
+    // mount ramfs
+    Command::new("sh")
+        .arg("-c")
+        .arg("sudo mount -t ramfs ramfs ./data")
+        .output()
+        .expect("Failed");
+    // owned by current user
+    Command::new("sh")
+        .arg("-c")
+        .arg("sudo chown -R $USER:users ./data")
+        .output()
+        .expect("Failed");
 
-    // check db
+    /********* PREPARE DATABASE *************/
     println!("Check for db...");
-    if !std::path::Path::new("./database/measurements.db").exists() {
+    if !std::path::Path::new("./data/measurements.db").exists() {
         println!("db does not exist, creating one...!");
-        let conn = Connection::open("./database/measurements.db").unwrap();
+        let conn = Connection::open("./data/measurements.db").unwrap();
 
         for field in FIELDS {
             let query: String = format!("CREATE TABLE {} (time DATE, value NUMBER)", *field);
@@ -54,6 +61,15 @@ fn main() {
         println!("Successful!");
     }
 
+    /********* RUN THREADS *************/
+    thread::spawn(|| {
+        udp::start_udp_listener(ip, udp_port, udp_sender);
+    });
+    thread::spawn(|| {
+        listen_for_new_measurement(udp_receiver /* current_sender */);
+    });
+
+    /********* START SERVER *************/
     println!("Server listens on {}...", server_adress);
     for stream in listener.incoming() {
         let stream = stream.unwrap();
