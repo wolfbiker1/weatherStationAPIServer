@@ -65,10 +65,10 @@ pub mod history_path_handler {
         min: f32,
     }
 
-    const FIELDS: &[&str; 4] = &["temp", "pressure", "humidity", "brightness"];
+    const FIELDS: &[&str; 4] = &["temperature", "pressure", "humidity", "brightness"];
 
     pub fn available_dates() -> HttpResponse {
-        let conn = Connection::open("./database/measurements.db").unwrap_or_else(|error| {
+        let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
             panic!("Could not open database, reason: '{}'", error);
         });
 
@@ -102,7 +102,7 @@ pub mod history_path_handler {
     /// 1 -> type (min, max, ...)
     ///
     pub fn peaks() -> HttpResponse {
-        let conn = Connection::open("./database/measurements.db").unwrap_or_else(|error| {
+        let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
             panic!("Could not open database, reason: '{}'", error);
         });
 
@@ -137,7 +137,7 @@ pub mod history_path_handler {
 
     // get all
     pub fn history_values(args: Vec<&str>) -> HttpResponse {
-        let conn = Connection::open("./database/measurements.db").unwrap_or_else(|error| {
+        let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
             panic!("Could not open database, reason: '{}'", error);
         });
 
@@ -164,7 +164,7 @@ pub mod history_path_handler {
 
     // query: select time from pressure where time > '2021-09-19 17:14:57' and  time < '2021-09-19 17:17:57';
     pub fn history_range(args: Vec<&str>) -> HttpResponse {
-        let conn = Connection::open("./database/measurements.db").unwrap_or_else(|error| {
+        let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
             panic!("Could not open database, reason: '{}'", error);
         });
 
