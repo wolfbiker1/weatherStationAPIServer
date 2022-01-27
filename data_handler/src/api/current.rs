@@ -1,6 +1,6 @@
+use super::super::global::current::read_static_value;
 use ::inet::protocoll::http::HttpResponse;
 use chrono::{DateTime, Local};
-use super::super::global::current::read_static_value;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -83,8 +83,8 @@ pub fn get_current_brightness() -> HttpResponse {
 fn fetch_value(field: &str) -> f64 {
     let val = read_static_value(field);
     match val {
-        Ok(res) => res.parse::<f64>().unwrap(),
-        Err(_) => -1.0
+        Ok(res) => res.strip_suffix("\n").unwrap().parse::<f64>().unwrap(),
+        Err(_) => -1.0,
     }
 }
 
