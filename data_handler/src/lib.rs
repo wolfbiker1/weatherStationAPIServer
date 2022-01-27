@@ -4,6 +4,7 @@ pub mod api;
 pub mod db;
 pub mod routes;
 pub mod udp;
+pub mod global;
 
 const FIELDS: &[&str; 4] = &["temperature", "pressure", "humidity", "brightness"];
 

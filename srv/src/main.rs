@@ -8,11 +8,13 @@ use std::{env, thread};
 use std::sync::mpsc::channel;
 
 use data_handler::udp::update::listen_for_new_measurement;
+// use data_handler::global::current::
+
 const FIELDS: &[&str; 4] = &["temp", "pressure", "humidity", "brightness"];
 
 fn main() {
-
     let (udp_sender, udp_receiver) = channel();
+    let (current_sender, current_receiver) = channel();
 
     let args: Vec<String> = env::args().collect();
     let ip: String = args[1].clone();
@@ -27,7 +29,7 @@ fn main() {
         udp::start_udp_listener(ip, udp_port, udp_sender);
     });
     thread::spawn(|| {
-        listen_for_new_measurement(udp_receiver);
+        listen_for_new_measurement(udp_receiver, current_sender);
     });
 
     // check db

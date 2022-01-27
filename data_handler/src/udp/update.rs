@@ -1,9 +1,12 @@
+// use async_std::channel::Sender;
+
 use super::super::{Measurements, FIELDS};
-use super::super::db::sqlite::insert_values;
-use std::sync::mpsc::Receiver;
+use super::super::db::sqlite::insert_in_db;
+// use super::super::global::
+use std::sync::mpsc::{Receiver, Sender};
 
 
-pub fn listen_for_new_measurement(receiver: Receiver<Vec<u8>>) {
+pub fn listen_for_new_measurement(receiver: Receiver<Vec<u8>>, sender: Sender<f64>) {
     for measure_data in receiver {
         let data: Measurements = serde_json::from_str(std::str::from_utf8(&measure_data).unwrap()).unwrap();
         apply_current_measurements(data);
@@ -19,7 +22,7 @@ fn apply_current_measurements(measurements: Measurements) {
             "brightness" => measurements.brightness.parse::<f64>().unwrap(),
             _ => 0.0,
         };
-        insert_values(*field, value);
+        insert_in_db(*field, value);
         // update_static_values(*field, value);
     }
 }

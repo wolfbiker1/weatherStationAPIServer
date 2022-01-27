@@ -1,6 +1,6 @@
 use rusqlite::{params, Connection, Result};
 
-pub fn insert_values(table_name: &str, value: f64) {
+pub fn insert_in_db(table_name: &str, value: f64) {
     let conn = Connection::open("./database/measurements.db").unwrap_or_else(|error| {
         panic!("Could not open database, reason: '{}'", error);
     });
