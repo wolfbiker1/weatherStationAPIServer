@@ -11,10 +11,8 @@ inet = { path = "../inet" }
 lang = { path = "../lang" }
 serde = { version = "1.0.127", features = ["derive"] }
 rusqlite = "0.25.3"
-atomic_float = "0.1.0"
 chrono = "0.4"
 async-std = "1.9.0"
 serde_json = "1.0.64"
 regex = "1.5"
 rand = "0.8.4"
-lazy_static = "1.4.0"

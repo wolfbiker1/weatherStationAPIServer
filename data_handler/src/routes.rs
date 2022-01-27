@@ -2,7 +2,7 @@ pub mod route_handler {
     use inet::protocoll::http::HttpResponse;
     use lang::types::*;
 
-    use crate::api::{current, forecast, history, update};
+    use crate::api::{current, history, update};
 
 
     const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 2] = [
@@ -22,7 +22,7 @@ pub mod route_handler {
 
     const POST_ROUTES_WITH_PARAM: [(RequestIdentifier, RequestHandler); 1] =
         [(("POST", "/insert"), update::update_path_handler::insert)];
-    const ROUTES: [(RequestIdentifier, RequestHandler); 10] = [
+    const ROUTES: [(RequestIdentifier, RequestHandler); 9] = [
         (("GET", "/current"), current::public_api),
         (("GET", "/temp"), current::get_current_temp),
         (("GET", "/pressure"), current::get_current_pressure),
@@ -32,20 +32,10 @@ pub mod route_handler {
         (("GET", "/peaks"), history::history_path_handler::peaks),
         (("GET", "/trend/current"), current::get_trends),
         (
-            ("GET", "/forecast"),
-            forecast::forecast_handler::calc_forecast,
-        ),
-        (
             ("GET", "/available_dates/"),
             history::history_path_handler::available_dates,
         ),
     ];
-
-
-
-    pub fn forecast_calculator() {
-        forecast::forecast_handler::main_worker()
-    }
 
     pub fn redirect_to_handler(req: (&str, &str)) -> HttpResponse {
         for (_i, &item) in ROUTES.iter().enumerate() {

@@ -3,15 +3,11 @@ pub mod udp;
 pub mod connection_manager {
     use ::data_handler;
     use ::inet::protocoll::http;
-    use super::udp;
     use std::io::prelude::*;
     use std::net::TcpStream;
     use std::str;
     const CORS_HEADER: &str = "Access-Control-Allow-Origin: *";
 
-    pub fn init_forecast_handler() {
-        data_handler::routes::route_handler::forecast_calculator();
-    }
     pub fn handle_connection(mut stream: TcpStream) {
         let mut buffer = [0; 1024];
         stream.read(&mut buffer).unwrap();

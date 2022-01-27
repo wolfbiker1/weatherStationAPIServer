@@ -1,35 +1,5 @@
 pub mod update_path_handler {
-    use atomic_float::AtomicF64;
-    use rusqlite::{params, Connection, Result};
-    use serde::{Deserialize, Serialize};
-    use std::str;
-    use std::sync::atomic::Ordering;
-
     use ::inet::protocoll::http::HttpResponse;
-
-    fn update_static_values(field: &str, value: f64) {
-        match field {
-            // "temp" => OUTDOOR_TEMP.store(value, Ordering::SeqCst),
-            // // "indoor_temp" => INDOOR_TEMP.store(value, Ordering::SeqCst),
-            // "pressure" => PRESSURE.store(value, Ordering::SeqCst),
-            // "humidity" => HUMIDITY.store(value, Ordering::SeqCst),
-            // "brightness" => BRIGHTNESS.store(value, Ordering::SeqCst),
-            _ => {
-                println!("sry no match.. {}", field);
-            }
-        }
-    }
-
-    pub fn load_current_measurements(field: &str) -> f64 {
-        match field {
-            // "temp" => OUTDOOR_TEMP.load(Ordering::SeqCst),
-            // // "indoor_temp" => INDOOR_TEMP.load(Ordering::SeqCst),
-            // "pressure" => PRESSURE.load(Ordering::SeqCst),
-            // "humidity" => HUMIDITY.load(Ordering::SeqCst),
-            // "brightness" => BRIGHTNESS.load(Ordering::SeqCst),
-            _ => -1.0,
-        }
-    }
 
     pub fn insert() -> HttpResponse {
     //     let conn = Connection::open("./database/measurements.db").unwrap_or_else(|error| {

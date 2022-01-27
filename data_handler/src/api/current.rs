@@ -1,7 +1,6 @@
-use super::forecast::forecast_handler::load_trend_values;
-use super::update::update_path_handler::load_current_measurements;
 use ::inet::protocoll::http::HttpResponse;
 use chrono::{DateTime, Local};
+use super::super::global::current::read_static_value;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -12,10 +11,6 @@ pub struct Data {
 
 pub fn get_trends() -> HttpResponse {
     let mut data: Vec<f64> = Vec::new();
-    data.push(load_trend_values("temp"));
-    data.push(load_trend_values("pressure"));
-    data.push(load_trend_values("humidity"));
-    data.push(load_trend_values("brightness"));
 
     HttpResponse {
         status: String::from("HTTP/2 200 OK"),
@@ -36,7 +31,7 @@ pub fn get_timestamps() -> HttpResponse {
 pub fn get_current_temp() -> HttpResponse {
     let data = Data {
         time: Local::now(),
-        value: load_current_measurements("temp"),
+        value: fetch_value("temperature"),
     };
 
     HttpResponse {
@@ -49,7 +44,7 @@ pub fn get_current_temp() -> HttpResponse {
 pub fn get_current_pressure() -> HttpResponse {
     let data = Data {
         time: Local::now(),
-        value: load_current_measurements("pressure"),
+        value: fetch_value("pressure"),
     };
 
     HttpResponse {
@@ -62,7 +57,7 @@ pub fn get_current_pressure() -> HttpResponse {
 pub fn get_current_humidty() -> HttpResponse {
     let data = Data {
         time: Local::now(),
-        value: load_current_measurements("humidity"),
+        value: fetch_value("humidity"),
     };
 
     HttpResponse {
@@ -75,7 +70,7 @@ pub fn get_current_humidty() -> HttpResponse {
 pub fn get_current_brightness() -> HttpResponse {
     let data = Data {
         time: Local::now(),
-        value: load_current_measurements("brightness"),
+        value: fetch_value("brightness"),
     };
 
     HttpResponse {
@@ -85,13 +80,21 @@ pub fn get_current_brightness() -> HttpResponse {
     }
 }
 
+fn fetch_value(field: &str) -> f64 {
+    let val = read_static_value(field);
+    match val {
+        Ok(res) => res.parse::<f64>().unwrap(),
+        Err(_) => -1.0
+    }
+}
+
 pub fn public_api() -> HttpResponse {
     let mut data: Vec<f64> = Vec::new();
-    // data.push(load_current_measurements("indoor_temp"));
-    data.push(load_current_measurements("temp"));
-    data.push(load_current_measurements("pressure"));
-    data.push(load_current_measurements("humidity"));
-    data.push(load_current_measurements("brightness"));
+    // data.push(read_static_value("indoor_temp"));
+    data.push(fetch_value("temp"));
+    data.push(fetch_value("pressure"));
+    data.push(fetch_value("humidity"));
+    data.push(fetch_value("brightness"));
 
     HttpResponse {
         status: String::from("HTTP/2 200 OK"),
