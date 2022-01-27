@@ -13,6 +13,7 @@ pub static BRIGHTNESS: AtomicF64 = AtomicF64::new(0.0);
 pub fn update_static_values(field_name: &str, value: f64) -> std::io::Result<()> {
     let path = format!("{}/{}/{}", std::env::current_dir().unwrap().display(), "data", field_name);
     let mut file = std::fs::File::create(path)?;
-    file.write_all(&value.to_ne_bytes())?;
+    writeln!(file, "{}", value);
+    // file.write_all(&value.to_ne_bytes())?;
     Ok(())
 }
