@@ -10,7 +10,7 @@ use std::{env, thread};
 use data_handler::udp::update::listen_for_new_measurement;
 // use data_handler::global::current::
 
-const FIELDS: &[&str; 4] = &["temp", "pressure", "humidity", "brightness"];
+const FIELDS: &[&str; 4] = &["temperature", "pressure", "humidity", "brightness"];
 
 fn main() {
     let (udp_sender, udp_receiver) = channel();

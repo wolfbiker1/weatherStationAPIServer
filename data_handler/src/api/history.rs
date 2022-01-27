@@ -20,7 +20,7 @@ pub mod history_path_handler {
 
     #[derive(Debug, Serialize, Deserialize)]
     struct DatesCollection {
-        temp: serde_json::Value,
+        temperature: serde_json::Value,
         pressure: serde_json::Value,
         humidity: serde_json::Value,
         brightness: serde_json::Value,
@@ -29,7 +29,7 @@ pub mod history_path_handler {
     impl DatesCollection {
         pub fn new() -> DatesCollection {
             DatesCollection {
-                temp: json!({"foo": "bar"}),
+                temperature: json!({"foo": "bar"}),
                 pressure: json!({"foo": "bar"}),
                 humidity: json!({"foo": "bar"}),
                 brightness: json!({"foo": "bar"}),
@@ -38,7 +38,7 @@ pub mod history_path_handler {
         pub fn change_value(mut self, field: &str, value: Vec<String>) -> DatesCollection {
             match field {
                 "temp" => {
-                    self.temp = serde_json::Value::String(serde_json::to_string(&value).unwrap())
+                    self.temperature = serde_json::Value::String(serde_json::to_string(&value).unwrap())
                 }
                 "pressure" => {
                     self.pressure =
