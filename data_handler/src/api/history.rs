@@ -8,9 +8,9 @@ pub mod history_path_handler {
     use std::str;
 
     #[derive(Debug, Serialize, Deserialize)]
-    struct Point {
-        x: String,
-        y: f32,
+    struct QueryResult {
+        identifier: String,
+	value: f32,
     }
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -37,7 +37,7 @@ pub mod history_path_handler {
         }
         pub fn change_value(mut self, field: &str, value: Vec<String>) -> DatesCollection {
             match field {
-                "temp" => {
+                "temperature" => {
                     self.temperature = serde_json::Value::String(serde_json::to_string(&value).unwrap())
                 }
                 "pressure" => {
@@ -66,7 +66,17 @@ pub mod history_path_handler {
     }
 
     const FIELDS: &[&str; 4] = &["temperature", "pressure", "humidity", "brightness"];
-
+    
+    ///
+    /// Returns every available day where entries exists.
+    ///
+    /// # Arguments
+    ///
+    /// * `None`
+    ///
+    /// # Returns
+    /// * `HttpResponse` - A HttpResponse object containing the result.
+    ///
     pub fn available_dates() -> HttpResponse {
         let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
             panic!("Could not open database, reason: '{}'", error);
@@ -96,10 +106,16 @@ pub mod history_path_handler {
             content: format!("{:?}", serde_json::to_string(&dt).unwrap()),
         }
     }
-
+    
     ///
-    /// 0 -> field (temp, ...)
-    /// 1 -> type (min, max, ...)
+    /// Returns *min*, *max* and *avg* on the given field. 
+    ///
+    /// # Arguments
+    ///
+    /// * `None`
+    ///
+    /// # Returns
+    /// * `HttpResponse` - A HttpResponse object containing the result.
     ///
     pub fn peaks() -> HttpResponse {
         let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
@@ -134,8 +150,17 @@ pub mod history_path_handler {
             content: format!("{:?}", result),
         }
     }
-
-    // get all
+    
+    ///
+    /// Returns all values for the given field.
+    ///
+    /// # Arguments
+    ///
+    /// * `args` - A &str vector containing the following parameter: [0] - field, 
+    ///
+    /// # Returns
+    /// * `HttpResponse` - A HttpResponse object containing the result.
+    ///
     pub fn history_values(args: Vec<&str>) -> HttpResponse {
         let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
             panic!("Could not open database, reason: '{}'", error);
@@ -144,15 +169,15 @@ pub mod history_path_handler {
         let query: String = format!("select * from {}", args[0]);
         let mut stmt = conn.prepare(&query).unwrap();
         let mut result: Vec<String> = Vec::new();
-        let point_iter = stmt.query_map([], |row| {
-            let p = Point {
-                x: row.get(0).unwrap(),
-                y: row.get(1).unwrap(),
+        let res_iter = stmt.query_map([], |row| {
+            let p = QueryResult {
+                identifier: row.get(0).unwrap(),
+                value: row.get(1).unwrap(),
             };
             Ok(p)
         });
-        for point in point_iter.unwrap() {
-            let p = point.unwrap();
+        for res in res_iter.unwrap() {
+            let p = res.unwrap();
             result.push(serde_json::to_string(&p).unwrap());
         }
         HttpResponse {
@@ -162,7 +187,17 @@ pub mod history_path_handler {
         }
     }
 
-    // query: select time from pressure where time > '2021-09-19 17:14:57' and  time < '2021-09-19 17:17:57';
+    ///
+    /// Returns all values for the given field within the given time range. 
+    ///
+    /// # Arguments
+    ///
+    /// * `args` - A &str vector containing the following parameters:
+    ///            [0] - field, [1] - left bound date, [2] - left bound time, [3] - right bound date, [4] - ri ght bound time 
+    ///
+    /// # Returns
+    /// * `HttpResponse` - A HttpResponse object containing the result.
+    ///
     pub fn history_range(args: Vec<&str>) -> HttpResponse {
         let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
             panic!("Could not open database, reason: '{}'", error);
@@ -175,15 +210,15 @@ pub mod history_path_handler {
         println!("{}", query);
         let mut stmt = conn.prepare(&query).unwrap();
         let mut result: Vec<String> = Vec::new();
-        let point_iter = stmt.query_map([], |row| {
-            let p = Point {
-                x: row.get(0).unwrap(),
-                y: row.get(1).unwrap(),
+        let res_iter = stmt.query_map([], |row| {
+            let p = QueryResult {
+                identifier: row.get(0).unwrap(),
+                value: row.get(1).unwrap(),
             };
             Ok(p)
         });
-        for point in point_iter.unwrap() {
-            let p = point.unwrap();
+        for res in res_iter.unwrap() {
+            let p = res.unwrap();
             result.push(serde_json::to_string(&p).unwrap());
         }
         HttpResponse {

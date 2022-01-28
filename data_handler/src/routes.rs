@@ -24,7 +24,7 @@ pub mod route_handler {
         [(("POST", "/insert"), update::update_path_handler::insert)];
     const ROUTES: [(RequestIdentifier, RequestHandler); 9] = [
         (("GET", "/current"), current::public_api),
-        (("GET", "/temp"), current::get_current_temp),
+        (("GET", "/temperature"), current::get_current_temp),
         (("GET", "/pressure"), current::get_current_pressure),
         (("GET", "/humidity"), current::get_current_humidty),
         (("GET", "/brightness"), current::get_current_brightness),

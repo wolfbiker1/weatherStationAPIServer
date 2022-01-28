@@ -1,11 +1,9 @@
 use super::super::global::current::read_static_value;
 use ::inet::protocoll::http::HttpResponse;
-use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Data {
-    time: DateTime<Local>,
     value: f64,
 }
 
@@ -30,7 +28,6 @@ pub fn get_timestamps() -> HttpResponse {
 
 pub fn get_current_temp() -> HttpResponse {
     let data = Data {
-        time: Local::now(),
         value: fetch_value("temperature"),
     };
 
@@ -43,7 +40,6 @@ pub fn get_current_temp() -> HttpResponse {
 
 pub fn get_current_pressure() -> HttpResponse {
     let data = Data {
-        time: Local::now(),
         value: fetch_value("pressure"),
     };
 
@@ -56,7 +52,6 @@ pub fn get_current_pressure() -> HttpResponse {
 
 pub fn get_current_humidty() -> HttpResponse {
     let data = Data {
-        time: Local::now(),
         value: fetch_value("humidity"),
     };
 
@@ -69,7 +64,6 @@ pub fn get_current_humidty() -> HttpResponse {
 
 pub fn get_current_brightness() -> HttpResponse {
     let data = Data {
-        time: Local::now(),
         value: fetch_value("brightness"),
     };
 
