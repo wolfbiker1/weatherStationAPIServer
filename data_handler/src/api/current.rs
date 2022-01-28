@@ -82,9 +82,8 @@ fn fetch_value(field: &str) -> f64 {
     }
 }
 
-pub fn public_api() -> HttpResponse {
+pub fn get_all_current_fields() -> HttpResponse {
     let mut data: Vec<f64> = Vec::new();
-    // data.push(read_static_value("indoor_temp"));
     data.push(fetch_value("temp"));
     data.push(fetch_value("pressure"));
     data.push(fetch_value("humidity"));
