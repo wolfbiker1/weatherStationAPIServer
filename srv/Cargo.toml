@@ -9,5 +9,5 @@ edition = "2018"
 [dependencies]
 mt_handler = { path = "../mt_handler" }
 connections = { path = "../connections" }
-routes = { path = "../routes" }
+data_handler = { path = "../data_handler" }
 rusqlite = "0.25.3"

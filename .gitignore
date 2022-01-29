@@ -1,5 +1,5 @@
 *.db
 target/
+data/
 move.sh
-database
 rustup.sh
