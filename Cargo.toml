@@ -4,5 +4,7 @@ members = [
     "srv",
     "mt_handler",
     "connections",
-    "routes"
+    "data_handler",
+    "inet",
+    "lang",
 ]

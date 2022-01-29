@@ -16,7 +16,7 @@ The frontend can send API request to the server to receive various measurement d
 * Minimize use of external crates to make the application more lightweight
 
 # Annotations
-This application does not run stand alone and depends from [WeatherGui] and [Sensordrivers] this repositories:
+This application does not run stand alone and depends from [WeatherGui] and [Sensordrivers].
 
 [webserver]: https://doc.rust-lang.org/book/ch20-00-final-project-a-web-server.html (webserver template)
 [WeatherGui]: https://github.com/wolfbiker1/weatherGui (WeatherGui)
