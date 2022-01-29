@@ -32,7 +32,7 @@ pub mod route_handler {
         (("GET", "/peaks"), history::history_path_handler::peaks),
         (("GET", "/trend/current"), current::get_trends),
         (
-            ("GET", "/available_dates/"),
+            ("GET", "/available_dates"),
             history::history_path_handler::available_dates,
         ),
     ];
