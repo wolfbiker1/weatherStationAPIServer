@@ -9,7 +9,7 @@ pub mod history_path_handler {
 
     #[derive(Debug, Serialize, Deserialize)]
     struct QueryResult {
-        identifier: String,
+        date_of_record: String,
 	value: f32,
     }
 
@@ -171,7 +171,7 @@ pub mod history_path_handler {
         let mut result: Vec<String> = Vec::new();
         let res_iter = stmt.query_map([], |row| {
             let p = QueryResult {
-                identifier: row.get(0).unwrap(),
+                date_of_record: row.get(0).unwrap(),
                 value: row.get(1).unwrap(),
             };
             Ok(p)
@@ -212,7 +212,7 @@ pub mod history_path_handler {
         let mut result: Vec<String> = Vec::new();
         let res_iter = stmt.query_map([], |row| {
             let p = QueryResult {
-                identifier: row.get(0).unwrap(),
+                date_of_record: row.get(0).unwrap(),
                 value: row.get(1).unwrap(),
             };
             Ok(p)
