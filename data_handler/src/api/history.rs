@@ -134,8 +134,11 @@ pub mod history_path_handler {
 
         let now = Local::now();
         let six_hours_back = now - Duration::hours(6);
-        
-        let query: String = format!("select value from {} where time < '{}' and time > '{}'", args[0], now, six_hours_back);
+
+        let query: String = format!(
+            "select value from {} where time < '{}' and time > '{}'",
+            args[0], now, six_hours_back
+        );
 
         let mut stmt = conn.prepare(&query).unwrap();
         let mut result: Vec<f64> = Vec::new();
@@ -145,14 +148,14 @@ pub mod history_path_handler {
             };
             Ok(p)
         });
-    
+
         for res in res_iter.unwrap() {
             let p = res.unwrap();
             result.push(p.value);
         }
 
         let trend_value = trend_handler::calc_trend(&result);
-    
+
         HttpResponse {
             status: String::from("HTTP/2 200 OK"),
             content_type: String::from("Content-Type: 'text/plain'"),

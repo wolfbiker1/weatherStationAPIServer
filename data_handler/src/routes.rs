@@ -4,7 +4,6 @@ pub mod route_handler {
 
     use crate::api::{current, history, update};
 
-
     const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 3] = [
         (
             ("GET", "/trend/for", "/:field"),
