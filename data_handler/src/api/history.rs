@@ -1,7 +1,11 @@
+use super::trend::trend_handler;
 use ::inet::protocoll::http::HttpResponse;
 
 pub mod history_path_handler {
+    use super::trend_handler;
     use super::HttpResponse;
+    use chrono::Duration;
+    use chrono::Local;
     use rusqlite::Connection;
     use serde::{Deserialize, Serialize};
     use serde_json::json;
@@ -10,7 +14,12 @@ pub mod history_path_handler {
     #[derive(Debug, Serialize, Deserialize)]
     struct QueryResult {
         date_of_record: String,
-	value: f32,
+        value: f32,
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    struct QueryValueOnly {
+        value: f64,
     }
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -38,7 +47,8 @@ pub mod history_path_handler {
         pub fn change_value(mut self, field: &str, value: Vec<String>) -> DatesCollection {
             match field {
                 "temperature" => {
-                    self.temperature = serde_json::Value::String(serde_json::to_string(&value).unwrap())
+                    self.temperature =
+                        serde_json::Value::String(serde_json::to_string(&value).unwrap())
                 }
                 "pressure" => {
                     self.pressure =
@@ -66,7 +76,7 @@ pub mod history_path_handler {
     }
 
     const FIELDS: &[&str; 4] = &["temperature", "pressure", "humidity", "brightness"];
-    
+
     ///
     /// Returns every available day where entries exists.
     ///
@@ -106,9 +116,55 @@ pub mod history_path_handler {
             content: format!("{:?}", serde_json::to_string(&dt).unwrap()),
         }
     }
-    
+
     ///
-    /// Returns *min*, *max* and *avg* on the given field. 
+    /// Returns the trend the given field by analyzing the last 6 hours.
+    ///
+    /// # Arguments
+    ///
+    /// * `args` - A &str vector containing the following parameter: [0] - field,
+    ///
+    /// # Returns
+    /// * `HttpResponse` - A HttpResponse object containing the result [m = gradient, b = intercept].
+    ///
+    pub fn trend_values(args: Vec<&str>) -> HttpResponse {
+        let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
+            panic!("Could not open database, reason: '{}'", error);
+        });
+
+        let now = Local::now();
+        let six_hours_back = now - Duration::hours(6);
+
+        let query: String = format!(
+            "select value from {} where time < '{}' and time > '{}'",
+            args[0], now, six_hours_back
+        );
+
+        let mut stmt = conn.prepare(&query).unwrap();
+        let mut result: Vec<f64> = Vec::new();
+        let res_iter = stmt.query_map([], |row| {
+            let p = QueryValueOnly {
+                value: row.get(0).unwrap(),
+            };
+            Ok(p)
+        });
+
+        for res in res_iter.unwrap() {
+            let p = res.unwrap();
+            result.push(p.value);
+        }
+
+        let trend_value = trend_handler::calc_trend(&result);
+
+        HttpResponse {
+            status: String::from("HTTP/2 200 OK"),
+            content_type: String::from("Content-Type: 'text/plain'"),
+            content: format!("{:?}", trend_value),
+        }
+    }
+
+    ///
+    /// Returns *min*, *max* and *avg* on the given field.
     ///
     /// # Arguments
     ///
@@ -150,13 +206,13 @@ pub mod history_path_handler {
             content: format!("{:?}", result),
         }
     }
-    
+
     ///
     /// Returns all values for the given field.
     ///
     /// # Arguments
     ///
-    /// * `args` - A &str vector containing the following parameter: [0] - field, 
+    /// * `args` - A &str vector containing the following parameter: [0] - field,
     ///
     /// # Returns
     /// * `HttpResponse` - A HttpResponse object containing the result.
@@ -188,12 +244,12 @@ pub mod history_path_handler {
     }
 
     ///
-    /// Returns all values for the given field within the given time range. 
+    /// Returns all values for the given field within the given time range.
     ///
     /// # Arguments
     ///
     /// * `args` - A &str vector containing the following parameters:
-    ///            [0] - field, [1] - left bound date, [2] - left bound time, [3] - right bound date, [4] - ri ght bound time 
+    ///            [0] - field, [1] - left bound date, [2] - left bound time, [3] - right bound date, [4] - right bound time.
     ///
     /// # Returns
     /// * `HttpResponse` - A HttpResponse object containing the result.

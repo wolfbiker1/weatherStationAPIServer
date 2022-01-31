@@ -13,8 +13,9 @@ pub mod connection_manager {
         stream.read(&mut buffer).unwrap();
         let req = http::wrap_requests(&buffer);
 
-        let response: http::HttpResponse =
-            data_handler::routes::route_handler::redirect_to_handler((&req.get_type(), &req.get_route()));
+        let response: http::HttpResponse = data_handler::routes::route_handler::redirect_to_handler(
+            (&req.get_type(), &req.get_route()),
+        );
 
         let response = format!(
             "{}\r\n{}\r\n{}\r\nContent-Length: {}\r\n\r\n{}",

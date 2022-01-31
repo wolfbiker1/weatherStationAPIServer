@@ -1,7 +1,7 @@
 use super::super::global::current::read_static_value;
 use ::inet::protocoll::http::HttpResponse;
-use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Local};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Data {
