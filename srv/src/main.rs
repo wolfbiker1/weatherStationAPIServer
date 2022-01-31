@@ -25,24 +25,23 @@ fn main() {
     let listener = TcpListener::bind(&server_adress).unwrap();
     let pool = ThreadPool::new(4);
 
-    /********* FS PREPARATION *************/
-    // mount ramfs
-    Command::new("sh")
-        .arg("-c")
-        .arg("sudo mount -t ramfs ramfs ./data")
-        .output()
-        .expect("Failed");
-    // owned by current user
-    Command::new("sh")
-        .arg("-c")
-        .arg("sudo chown -R $USER:users ./data")
-        .output()
-        .expect("Failed");
-
     /********* PREPARE DATABASE *************/
     println!("Check for db...");
     if !std::path::Path::new("./data/measurements.db").exists() {
         println!("db does not exist, creating one...!");
+        /********* FS PREPARATION *************/
+        // mount ramfs
+        Command::new("sh")
+            .arg("-c")
+            .arg("sudo mount -t ramfs ramfs ./data")
+            .output()
+            .expect("Failed");
+        // owned by current user
+        Command::new("sh")
+            .arg("-c")
+            .arg("sudo chown -R $USER:users ./data")
+            .output()
+            .expect("Failed");
         let conn = Connection::open("./data/measurements.db").unwrap();
 
         for field in FIELDS {
