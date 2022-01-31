@@ -208,6 +208,46 @@ pub mod history_path_handler {
     }
 
     ///
+    /// Returns a bar chart for the last 12 hours with the values on average.
+    ///
+    /// # Arguments
+    ///
+    /// * `args` - A &str vector containing the following parameter: [0] - field,
+    ///
+    /// # Returns
+    /// * `HttpResponse` - A HttpResponse object containing the result.
+    ///
+    pub fn barchart_values(args: Vec<&str>) -> HttpResponse {
+        let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
+            panic!("Could not open database, reason: '{}'", error);
+        });
+
+        let now = Local::now();
+        let six_hours_back = now - Duration::hours(6);
+
+        let query: String = format!("select strftime('%H', time), avg(value) from {} where time < '{}' and time > '{}'  group by strftime ('%H',time)", args[0], now, six_hours_back);
+
+        let mut stmt = conn.prepare(&query).unwrap();
+        let mut result: Vec<String> = Vec::new();
+        let res_iter = stmt.query_map([], |row| {
+            let p = QueryResult {
+                date_of_record: row.get(0).unwrap(),
+                value: row.get(1).unwrap(),
+            };
+            Ok(p)
+        });
+        for res in res_iter.unwrap() {
+            let p = res.unwrap();
+            result.push(serde_json::to_string(&p).unwrap());
+        }
+        HttpResponse {
+            status: String::from("HTTP/2 200 OK"),
+            content_type: String::from("Content-Type: 'text/plain'"),
+            content: format!("{:?}", result),
+        }
+    }
+
+    ///
     /// Returns all values for the given field.
     ///
     /// # Arguments
