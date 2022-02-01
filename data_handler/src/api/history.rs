@@ -223,7 +223,7 @@ pub mod history_path_handler {
         });
 
         let now = Local::now();
-        let six_hours_back = now - Duration::hours(6);
+        let six_hours_back = now - Duration::hours(12);
 
         let query: String = format!("select strftime('%H', time), avg(value) from {} where time < '{}' and time > '{}'  group by strftime ('%H',time)", args[0], now, six_hours_back);
 
