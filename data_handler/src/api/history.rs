@@ -225,7 +225,7 @@ pub mod history_path_handler {
         let now = Local::now();
         let six_hours_back = now - Duration::hours(12);
 
-        let query: String = format!("select strftime('%H:%M', time), avg(value) from {} where time < '{}' and time > '{}'  group by strftime ('%H',time)", args[0], now, six_hours_back);
+        let query: String = format!("select strftime('%H:%M', time), avg(value) from {} where time < '{}' and time > '{}'  group by strftime ('%H:%M',time) order by strftime ('%H:%M',time)", args[0], now, six_hours_back);
 
         let mut stmt = conn.prepare(&query).unwrap();
         let mut result: Vec<String> = Vec::new();
