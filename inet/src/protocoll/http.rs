@@ -22,6 +22,7 @@ impl HttpReq {
 
 pub fn wrap_requests(buffer: &[u8]) -> HttpReq {
     let req = str::from_utf8(buffer).unwrap();
+    println!("Request: {}", req);
     let req = req.split(' ').collect::<Vec<&str>>();
     HttpReq {
         req_type: String::from(req[0]),
