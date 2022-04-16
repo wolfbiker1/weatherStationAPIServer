@@ -71,8 +71,8 @@ pub mod history_path_handler {
     #[derive(Debug, Serialize, Deserialize)]
     struct Peaks {
         date: String,
-        // avg: f32,
         val: f32,
+        // ident: &str,
     }
 
     const FIELDS: &[&str; 4] = &["temperature", "pressure", "humidity", "brightness"];
@@ -179,6 +179,7 @@ pub mod history_path_handler {
         });
 
         let mut result: Vec<String> = Vec::new();
+        let t: Vec<&str> = vec!["max", "min", "avg"]; 
         for field in FIELDS {
             //let query: String = format!("select max(value), avg(value), min(value) from {}", field);
 
@@ -193,10 +194,11 @@ pub mod history_path_handler {
                 };
                 Ok(p)
             });
-            for peak in peak_iter.unwrap() {
-                let p = peak.unwrap();
+            for peak in peak_iter.unwrap().enumerate() {
+                let p = peak.1.unwrap();
                 let peak_as_json = json!({
                     *field: {
+                    "ident": t[peak.0],
                     "content": p
                     }
                 });
