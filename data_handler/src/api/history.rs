@@ -179,11 +179,11 @@ pub mod history_path_handler {
         });
 
         let mut result: Vec<String> = Vec::new();
-        // for field in FIELDS {
+        for field in FIELDS {
             //let query: String = format!("select max(value), avg(value), min(value) from {}", field);
 
             // TODO WIP
-            let query: String = format!("select *, max(value) from temperature union select *, min(value) from temperature union select *,avg(value) from temperature");
+            let query: String = format!("select *, max(value) from {} union select *, min(value) from {} union select *,avg(value) from {}", field, field, field);
             let mut stmt = conn.prepare(&query).unwrap();
             let peak_iter = stmt.query_map([], |row| {
                 let p = Peaks {
@@ -196,13 +196,13 @@ pub mod history_path_handler {
             for peak in peak_iter.unwrap() {
                 let p = peak.unwrap();
                 let peak_as_json = json!({
-                    // *field: {
+                    *field: {
                     "content": p
-                    // }
+                    }
                 });
                 result.push(serde_json::to_string(&peak_as_json).unwrap());
             }
-        // }
+        }
         HttpResponse {
             status: String::from("HTTP/2 200 OK"),
             content_type: String::from("Content-Type: 'text/plain'"),
