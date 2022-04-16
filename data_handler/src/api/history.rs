@@ -70,9 +70,9 @@ pub mod history_path_handler {
 
     #[derive(Debug, Serialize, Deserialize)]
     struct Peaks {
-        max: f32,
-        avg: f32,
-        min: f32,
+        date: String,
+        // avg: f32,
+        val: f32,
     }
 
     const FIELDS: &[&str; 4] = &["temperature", "pressure", "humidity", "brightness"];
@@ -180,13 +180,16 @@ pub mod history_path_handler {
 
         let mut result: Vec<String> = Vec::new();
         for field in FIELDS {
-            let query: String = format!("select max(value), avg(value), min(value) from {}", field);
+            //let query: String = format!("select max(value), avg(value), min(value) from {}", field);
+
+            // TODO WIP
+            let query: String = format!("select *, max(value) from temperature union select *, min(value) from temperature union select *,avg(value) from temperature");
             let mut stmt = conn.prepare(&query).unwrap();
             let peak_iter = stmt.query_map([], |row| {
                 let p = Peaks {
-                    max: row.get(0).unwrap(),
-                    avg: row.get(1).unwrap(),
-                    min: row.get(2).unwrap(),
+                    date: row.get(0).unwrap(),
+                    // avg: row.get(1).unwrap(),
+                    val: row.get(2).unwrap(),
                 };
                 Ok(p)
             });
