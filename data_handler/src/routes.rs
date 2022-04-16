@@ -4,7 +4,7 @@ pub mod route_handler {
 
     use crate::api::{current, history, update};
 
-    const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 4] = [
+    const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 5] = [
         (
             ("GET", "/trend/for", "/:field"),
             history::history_path_handler::trend_values,
@@ -15,6 +15,10 @@ pub mod route_handler {
         ),
         (
             ("GET", "/barchart/for", "/:field"),
+            history::history_path_handler::barchart_values,
+        ),
+        (
+            ("GET", "/past/for", "/:field/:hours"),
             history::history_path_handler::barchart_values,
         ),
         (
