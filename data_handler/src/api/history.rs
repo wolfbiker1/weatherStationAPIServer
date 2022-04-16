@@ -196,9 +196,9 @@ pub mod history_path_handler {
             for peak in peak_iter.unwrap() {
                 let p = peak.unwrap();
                 let peak_as_json = json!({
-                    *field: {
+                    // *field: {
                     "content": p
-                    }
+                    // }
                 });
                 result.push(serde_json::to_string(&peak_as_json).unwrap());
             }
