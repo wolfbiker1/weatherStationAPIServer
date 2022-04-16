@@ -223,10 +223,11 @@ pub mod history_path_handler {
         });
 
         let now = Local::now();
-        let n_hours_back = now - Duration::hours(args[1].parse::<u32>().unwrap() as i64);
-    
 
-        let query: String = format!("select * from {} where time == '{}'", args[0], n_hours_back);
+        let n_hours_back = now - Duration::hours(args[1].parse::<u32>().unwrap() as i64);
+        let minute_offset = n_hours_back - Duration::minutes(1 as i64);
+
+        let query: String = format!("select * from {} where time < '{}' and time > '{}'", args[0], n_hours_back, minute_offset);
 
         let mut stmt = conn.prepare(&query).unwrap();
         let mut result: Vec<String> = Vec::new();
