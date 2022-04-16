@@ -179,7 +179,7 @@ pub mod history_path_handler {
         });
 
         let mut result: Vec<String> = Vec::new();
-        let t: Vec<&str> = vec!["max", "min", "avg"]; 
+        let t: Vec<&str> = vec!["avg", "min", "max"]; 
         for field in FIELDS {
             //let query: String = format!("select max(value), avg(value), min(value) from {}", field);
 
