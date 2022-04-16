@@ -179,7 +179,7 @@ pub mod history_path_handler {
         });
 
         let mut result: Vec<String> = Vec::new();
-        for field in FIELDS {
+        // for field in FIELDS {
             //let query: String = format!("select max(value), avg(value), min(value) from {}", field);
 
             // TODO WIP
@@ -202,7 +202,7 @@ pub mod history_path_handler {
                 });
                 result.push(serde_json::to_string(&peak_as_json).unwrap());
             }
-        }
+        // }
         HttpResponse {
             status: String::from("HTTP/2 200 OK"),
             content_type: String::from("Content-Type: 'text/plain'"),
