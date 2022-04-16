@@ -19,7 +19,7 @@ pub mod route_handler {
         ),
         (
             ("GET", "/past/for", "/:field/:hours"),
-            history::history_path_handler::barchart_values,
+            history::history_path_handler::get_past_value,
         ),
         (
             (
