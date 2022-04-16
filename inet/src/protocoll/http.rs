@@ -25,8 +25,16 @@ pub fn wrap_requests(buffer: &[u8]) -> HttpReq {
     println!("Request: {}", req);
     println!("@ {:?}", SystemTime::now());
     let req = req.split(' ').collect::<Vec<&str>>();
-    HttpReq {
-        req_type: String::from(req[0]),
-        route: String::from(req[1]),
+    if req.len() >= 2 {
+        return HttpReq {
+            req_type: String::from(req[0]),
+            route: String::from(req[1]),
+        };
+    } else {
+        println!("FAIL: {:?}\n", req);
+        return HttpReq {
+            req_type: String::from(""),
+            route: String::from(""),
+        };
     }
 }
