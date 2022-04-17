@@ -179,12 +179,12 @@ pub mod history_path_handler {
         });
 
         let mut result: Vec<String> = Vec::new();
-        let t: Vec<&str> = vec!["avg", "min", "max"]; 
+        let t: Vec<&str> = vec!["min", "avg", "max"]; 
         for field in FIELDS {
             //let query: String = format!("select max(value), avg(value), min(value) from {}", field);
 
             // TODO WIP
-            let query: String = format!("select *, max(value) from {} union select *, min(value) from {} union select *,avg(value) from {}", field, field, field);
+            let query: String = format!("select *, max(value) from {} union select *, min(value) from {} union select *,avg(value) from {}  order by value", field, field, field);
             let mut stmt = conn.prepare(&query).unwrap();
             let peak_iter = stmt.query_map([], |row| {
                 let p = Peaks {
