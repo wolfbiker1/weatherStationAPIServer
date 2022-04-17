@@ -184,6 +184,8 @@ pub mod history_path_handler {
             //let query: String = format!("select max(value), avg(value), min(value) from {}", field);
 
             // TODO WIP
+            // Praise LordSaitamaa (https://github.com/LordSaitamaa) for support on database
+            // queries
             let query: String = format!("select *, max(value) from {} union select *, min(value) from {} union select *,avg(value) from {}  order by value", field, field, field);
             let mut stmt = conn.prepare(&query).unwrap();
             let peak_iter = stmt.query_map([], |row| {
