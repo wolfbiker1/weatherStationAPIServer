@@ -109,6 +109,9 @@ dependencies = [
 [[package]]
 name = "inet"
 version = "0.1.0"
+dependencies = [
+ "chrono",
+]
 
 [[package]]
 name = "itoa"

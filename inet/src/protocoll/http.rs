@@ -1,5 +1,6 @@
 use std::str;
-use std::time::{Duration, SystemTime};
+use std::time::{SystemTime};
+use chrono::{DateTime, Utc};
 pub struct HttpReq {
     req_type: String,
     route: String,
@@ -22,8 +23,12 @@ impl HttpReq {
 
 pub fn wrap_requests(buffer: &[u8]) -> HttpReq {
     let req = str::from_utf8(buffer).unwrap();
-    println!("Request: {}", req);
-    println!("@ {:?}", SystemTime::now());
+    println!("-- custom logging --");
+    println!("Request:\n {}", req);
+
+    let timestamp_as_utc: DateTime<Utc> = SystemTime::now().into();
+    println!("@ {:?} \n", timestamp_as_utc.to_rfc3339());
+
     let req = req.split(' ').collect::<Vec<&str>>();
     if req.len() >= 2 {
         return HttpReq {
