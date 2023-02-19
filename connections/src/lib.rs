@@ -10,22 +10,33 @@ pub mod connection_manager {
 
     pub fn handle_connection(mut stream: TcpStream) {
         let mut buffer = [0; 1024];
-        stream.read(&mut buffer).unwrap();
-        let req = http::wrap_requests(&buffer);
+        let stream_result = stream.read(&mut buffer);
 
-        let response: http::HttpResponse = data_handler::routes::route_handler::redirect_to_handler(
-            (&req.get_type(), &req.get_route()),
-        );
+        match stream_result {
+            Ok(_) => {
+                let req = http::wrap_requests(&buffer);
 
-        let response = format!(
-            "{}\r\n{}\r\n{}\r\nContent-Length: {}\r\n\r\n{}",
-            response.status,
-            CORS_HEADER,
-            response.content_type,
-            response.content.len(),
-            response.content
-        );
-        stream.write(response.as_bytes()).unwrap();
-        stream.flush().unwrap();
+                let response: http::HttpResponse = data_handler::routes::route_handler::redirect_to_handler(
+                    (&req.get_type(), &req.get_route()),
+                );
+        
+                let response = format!(
+                    "{}\r\n{}\r\n{}\r\nContent-Length: {}\r\n\r\n{}",
+                    response.status,
+                    CORS_HEADER,
+                    response.content_type,
+                    response.content.len(),
+                    response.content
+                );
+                stream.write(response.as_bytes()).unwrap();
+                stream.flush().unwrap();
+            }
+            Err(err) => {
+                println!("Error: {}", err);
+                return;
+            }
+        }
+        
+
     }
 }

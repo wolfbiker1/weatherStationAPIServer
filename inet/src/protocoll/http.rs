@@ -23,11 +23,10 @@ impl HttpReq {
 
 pub fn wrap_requests(buffer: &[u8]) -> HttpReq {
     let req = str::from_utf8(buffer).unwrap();
-    println!("-- custom logging --");
-    println!("Request:\n {}", req);
-
+    println!("-- custom logging start --");
     let timestamp_as_utc: DateTime<Utc> = SystemTime::now().into();
-    println!("@ {:?} \n", timestamp_as_utc.to_rfc3339());
+    println!("Request:\n {} \n Time: {:?}", req, timestamp_as_utc.to_rfc3339());
+    println!("-- custom logging end --");
 
     let req = req.split(' ').collect::<Vec<&str>>();
     if req.len() >= 2 {
