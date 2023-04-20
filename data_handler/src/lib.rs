@@ -15,3 +15,15 @@ pub struct Measurements {
     pressure: String,
     brightness: String,
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct NodeMeasurements {
+    node_number: u8,
+    humidity: u16,
+    temperature: u16,
+    crc: u8,
+    is_valid: u8
+}
+

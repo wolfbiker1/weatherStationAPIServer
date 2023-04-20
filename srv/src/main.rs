@@ -7,7 +7,7 @@ use std::process::Command;
 use std::sync::mpsc::channel;
 use std::{env, thread};
 
-use data_handler::udp::update::listen_for_new_measurement;
+use data_handler::udp::update::{listen_for_new_measurement, listen_for_node_measurement};
 // use data_handler::global::current::
 
 const FIELDS: &[&str; 4] = &["temperature", "pressure", "humidity", "brightness"];
@@ -65,7 +65,8 @@ fn main() {
         udp::start_udp_listener(ip, udp_port, udp_sender);
     });
     thread::spawn(|| {
-        listen_for_new_measurement(udp_receiver /* current_sender */);
+        listen_for_node_measurement(udp_receiver);
+        // listen_for_new_measurement(udp_receiver /* current_sender */);
     });
 
     /********* START SERVER *************/
