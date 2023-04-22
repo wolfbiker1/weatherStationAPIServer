@@ -24,6 +24,5 @@ pub struct NodeMeasurements {
     humidity: u16,
     temperature: u16,
     crc: u8,
-    is_valid: u8
+    is_valid: u8,
 }
-

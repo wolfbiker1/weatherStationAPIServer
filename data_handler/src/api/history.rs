@@ -179,7 +179,7 @@ pub mod history_path_handler {
         });
 
         let mut result: Vec<String> = Vec::new();
-        let t: Vec<&str> = vec!["min", "avg", "max"]; 
+        let t: Vec<&str> = vec!["min", "avg", "max"];
         for field in FIELDS {
             //let query: String = format!("select max(value), avg(value), min(value) from {}", field);
 
@@ -234,7 +234,10 @@ pub mod history_path_handler {
         let n_hours_back = now - Duration::hours(args[1].parse::<u32>().unwrap() as i64);
         let minute_offset = n_hours_back - Duration::minutes(1 as i64);
 
-        let query: String = format!("select * from {} where time < '{}' and time > '{}'", args[0], n_hours_back, minute_offset);
+        let query: String = format!(
+            "select * from {} where time < '{}' and time > '{}'",
+            args[0], n_hours_back, minute_offset
+        );
 
         let mut stmt = conn.prepare(&query).unwrap();
         let mut result: Vec<String> = Vec::new();

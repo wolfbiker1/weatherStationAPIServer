@@ -28,10 +28,10 @@ pub fn get_timestamps() -> HttpResponse {
     }
 }
 
-pub fn get_current_temp() -> HttpResponse {
+pub fn get_current_temp(args: Vec<&str>) -> HttpResponse {
     let data = Data {
         time: Local::now(),
-        value: fetch_value("temperature"),
+        value: fetch_value("temperature", args[0]),
     };
 
     HttpResponse {
@@ -41,10 +41,10 @@ pub fn get_current_temp() -> HttpResponse {
     }
 }
 
-pub fn get_current_pressure() -> HttpResponse {
+pub fn get_current_pressure(args: Vec<&str>) -> HttpResponse {
     let data = Data {
         time: Local::now(),
-        value: fetch_value("pressure"),
+        value: fetch_value("pressure", args[0]),
     };
 
     HttpResponse {
@@ -54,10 +54,10 @@ pub fn get_current_pressure() -> HttpResponse {
     }
 }
 
-pub fn get_current_humidty() -> HttpResponse {
+pub fn get_current_humidty(args: Vec<&str>) -> HttpResponse {
     let data = Data {
         time: Local::now(),
-        value: fetch_value("humidity"),
+        value: fetch_value("humidity", args[0]),
     };
 
     HttpResponse {
@@ -67,10 +67,10 @@ pub fn get_current_humidty() -> HttpResponse {
     }
 }
 
-pub fn get_current_brightness() -> HttpResponse {
+pub fn get_current_brightness(args: Vec<&str>) -> HttpResponse {
     let data = Data {
         time: Local::now(),
-        value: fetch_value("brightness"),
+        value: fetch_value("brightness", args[0]),
     };
 
     HttpResponse {
@@ -80,20 +80,20 @@ pub fn get_current_brightness() -> HttpResponse {
     }
 }
 
-fn fetch_value(field: &str) -> f64 {
-    let val = read_static_value(field);
+fn fetch_value(field: &str, node_number: &str) -> f64 {
+    let val = read_static_value(field, node_number);
     match val {
         Ok(res) => res.strip_suffix("\n").unwrap().parse::<f64>().unwrap(),
         Err(_) => -1.0,
     }
 }
 
-pub fn get_all_current_fields() -> HttpResponse {
+pub fn get_all_current_fields(args: Vec<&str>) -> HttpResponse {
     let mut data: Vec<f64> = Vec::new();
-    data.push(fetch_value("temperature"));
-    data.push(fetch_value("pressure"));
-    data.push(fetch_value("humidity"));
-    data.push(fetch_value("brightness"));
+    data.push(fetch_value("temperature", args[0]));
+    data.push(fetch_value("pressure", args[0]));
+    data.push(fetch_value("humidity", args[0]));
+    data.push(fetch_value("brightness", args[0]));
 
     HttpResponse {
         status: String::from("HTTP/2 200 OK"),

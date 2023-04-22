@@ -4,7 +4,7 @@ pub mod route_handler {
 
     use crate::api::{current, history, update};
 
-    const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 5] = [
+    const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 10] = [
         (
             ("GET", "/trend/for", "/:field"),
             history::history_path_handler::trend_values,
@@ -22,6 +22,15 @@ pub mod route_handler {
             history::history_path_handler::get_past_value,
         ),
         (
+            ("GET", "/temperature", "/:location"),
+            current::get_current_temp,
+        ),
+        (("GET", "/pressure", "/:location"), current::get_current_pressure),
+        (("GET", "/humidity", "/:location"), current::get_current_humidty),
+        (("GET", "/brightness", "/:location"), current::get_current_brightness),
+        (("GET", "/current", "/:location"), current::get_all_current_fields),
+
+        (
             (
                 "GET",
                 "/hist_range",
@@ -33,12 +42,7 @@ pub mod route_handler {
 
     const POST_ROUTES_WITH_PARAM: [(RequestIdentifier, RequestHandler); 1] =
         [(("POST", "/insert"), update::update_path_handler::insert)];
-    const ROUTES: [(RequestIdentifier, RequestHandler); 9] = [
-        (("GET", "/current"), current::get_all_current_fields),
-        (("GET", "/temperature"), current::get_current_temp),
-        (("GET", "/pressure"), current::get_current_pressure),
-        (("GET", "/humidity"), current::get_current_humidty),
-        (("GET", "/brightness"), current::get_current_brightness),
+    const ROUTES: [(RequestIdentifier, RequestHandler); 4] = [
         (("GET", "/timestamps"), current::get_timestamps),
         (("GET", "/peaks"), history::history_path_handler::peaks),
         (("GET", "/trend/current"), current::get_trends),
