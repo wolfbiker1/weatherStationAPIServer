@@ -25,11 +25,22 @@ pub mod route_handler {
             ("GET", "/temperature", "/:location"),
             current::get_current_temp,
         ),
-        (("GET", "/pressure", "/:location"), current::get_current_pressure),
-        (("GET", "/humidity", "/:location"), current::get_current_humidty),
-        (("GET", "/brightness", "/:location"), current::get_current_brightness),
-        (("GET", "/current", "/:location"), current::get_all_current_fields),
-
+        (
+            ("GET", "/pressure", "/:location"),
+            current::get_current_pressure,
+        ),
+        (
+            ("GET", "/humidity", "/:location"),
+            current::get_current_humidty,
+        ),
+        (
+            ("GET", "/brightness", "/:location"),
+            current::get_current_brightness,
+        ),
+        (
+            ("GET", "/current", "/:location"),
+            current::get_all_current_fields,
+        ),
         (
             (
                 "GET",

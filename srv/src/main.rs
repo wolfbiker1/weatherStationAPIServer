@@ -1,20 +1,17 @@
 use connections::{connection_manager, udp};
 use mt_handler::ThreadPool;
 // use statistic::forecast;
+use data_handler::udp::update::{listen_for_new_measurement, listen_for_node_measurement};
 use rusqlite::{params, Connection};
 use std::net::TcpListener;
 use std::process::Command;
 use std::sync::mpsc::channel;
 use std::{env, thread};
 
-use data_handler::udp::update::{listen_for_new_measurement, listen_for_node_measurement};
-// use data_handler::global::current::
-
 const FIELDS: &[&str; 4] = &["temperature", "pressure", "humidity", "brightness"];
 
 fn main() {
     let (udp_sender, udp_receiver) = channel();
-    // let (current_sender, current_receiver) = channel();
 
     let args: Vec<String> = env::args().collect();
     let ip: String = args[1].clone();
@@ -45,7 +42,10 @@ fn main() {
         let conn = Connection::open("./data/measurements.db").unwrap();
 
         for field in FIELDS {
-            let query: String = format!("CREATE TABLE {} (time DATE, value NUMBER)", *field);
+            let query: String = format!(
+                "CREATE TABLE {} (time DATE, value NUMBER, origin NUMBER)",
+                *field
+            );
             let res = conn.execute(&query, params![]);
             match res {
                 Ok(_) => {

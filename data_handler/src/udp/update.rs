@@ -46,7 +46,7 @@ fn apply_current_node_measurements(measurements: NodeMeasurements) {
             _ => 0.0,
         };
 
-        insert_in_db(*field, value);
+        insert_in_db(*field, value, measurements.node_number);
 
         let res = update_static_values(*field, value, measurements.node_number);
 
@@ -68,7 +68,7 @@ fn apply_current_measurements(measurements: Measurements) {
             "brightness" => measurements.brightness.parse::<f64>().unwrap(),
             _ => 0.0,
         };
-        insert_in_db(*field, value);
+        insert_in_db(*field, value, 0);
         update_static_values(*field, value, 0);
     }
 }
