@@ -22,6 +22,18 @@ pub mod route_handler {
             history::history_path_handler::get_past_value,
         ),
         (
+            ("GET", "/current", "/:location"),
+            current::get_all_current_fields,
+        ),
+        (
+            (
+                "GET",
+                "/hist_range",
+                "/:field/:date_start/:time_start/:date_end/:time_end",
+            ),
+            history::history_path_handler::history_range,
+        ),
+        (
             ("GET", "/temperature", "/:location"),
             current::get_current_temp,
         ),
@@ -36,18 +48,6 @@ pub mod route_handler {
         (
             ("GET", "/brightness", "/:location"),
             current::get_current_brightness,
-        ),
-        (
-            ("GET", "/current", "/:location"),
-            current::get_all_current_fields,
-        ),
-        (
-            (
-                "GET",
-                "/hist_range",
-                "/:field/:date_start/:time_start/:date_end/:time_end",
-            ),
-            history::history_path_handler::history_range,
         ),
     ];
 
