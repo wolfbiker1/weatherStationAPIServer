@@ -25,23 +25,12 @@ pub fn listen_for_node_measurement(udp_receiver: Receiver<Vec<u8>>) {
 }
 
 fn apply_current_node_measurements(measurements: NodeMeasurements) {
-    // just a workaround until crc errors fixed
-    let temperature = measurements.temperature as f64 / 10 as f64;
-    let humidity = measurements.humidity as f64 / 10 as f64;
-
-    if temperature > 40.0 || temperature < -10.0 {
-        return;
-    }
-
-    if humidity > 95.0 || humidity < 5.0 {
-        return;
-    }
 
     for field in FIELDS {
         let value: f64 = match *field {
-            "temperature" => temperature,
+            "temperature" => (measurements.temperature as f64 / 10_f64) as f64,
             "pressure" => 0.0,
-            "humidity" => humidity,
+            "humidity" => (measurements.humidity as f64 / 10_f64) as f64,
             "brightness" => 0.0,
             _ => 0.0,
         };
