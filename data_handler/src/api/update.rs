@@ -5,7 +5,7 @@ pub mod update_path_handler {
         for (index, arg) in args.iter().enumerate() {
             println!("arg no {} : {}", index, arg);
         }
-        
+
         HttpResponse {
             status: String::from("HTTP/2 200 OK"),
             content_type: String::from("Content-Type: 'text/plain'"),
@@ -20,7 +20,7 @@ pub mod update_path_handler {
 
             println!("arg no {} : {}", index, arg);
         }
-        
+
         HttpResponse {
             status: String::from("HTTP/2 200 OK"),
             content_type: String::from("Content-Type: 'text/plain'"),

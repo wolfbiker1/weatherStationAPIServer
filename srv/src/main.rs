@@ -8,7 +8,7 @@ use std::process::Command;
 use std::sync::mpsc::channel;
 use std::{env, thread};
 //@todo: unclean
-use data_handler::global::runtime;
+use data_handler::global::node;
 
 const FIELDS: &[&str; 4] = &["temperature", "pressure", "humidity", "brightness"];
 
@@ -28,7 +28,7 @@ fn main() {
     println!("Check for db...");
     if !std::path::Path::new("./data/measurements.db").exists() {
         println!("db does not exist, creating one...!");
-        
+
         /********* FS PREPARATION *************/
         // mount ramfs
         Command::new("sh")
@@ -60,11 +60,11 @@ fn main() {
                 }
             }
         }
-
     } else {
         println!("Successful!");
     }
-    runtime::runtime_info::init_map();
+    node::node_info::init_map();
+    node::node_info::register_node(160, false);
 
     /********* RUN THREADS *************/
     thread::spawn(|| {
