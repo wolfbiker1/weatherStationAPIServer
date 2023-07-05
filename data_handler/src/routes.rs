@@ -51,8 +51,10 @@ pub mod route_handler {
         ),
     ];
 
-    const POST_ROUTES_WITH_PARAM: [(RequestIdentifier, RequestHandler); 1] =
-        [(("POST", "/insert"), update::update_path_handler::insert)];
+    const POST_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 1] =
+        [
+            (("POST", "/registernode", "/:node_number"), update::update_path_handler::register_node)
+        ];
     const ROUTES: [(RequestIdentifier, RequestHandler); 4] = [
         (("GET", "/timestamps"), current::get_timestamps),
         (("GET", "/peaks"), history::history_path_handler::peaks),
@@ -82,16 +84,17 @@ pub mod route_handler {
         for (_i, &item) in POST_ROUTES_WITH_PARAM.iter().enumerate() {
             // 0 -> first tuple, 1 -> path
             let raw_path = item.0 .1;
+            println!("match raw: {} , req: {:?} , {}", raw_path, req,req.1.contains(raw_path));
             if req.1.contains(raw_path) {
                 let args = req.1.strip_prefix(raw_path).unwrap();
                 let args: Vec<&str> = args.split('/').filter(|&x| !x.is_empty()).collect();
-                return item.1();
+                return item.1(args);
             }
         }
         HttpResponse {
             status: String::from("HTTP/2 501 Not Implemented"),
             content_type: String::from("Content-Type: 'text/plain'"),
-            content: String::from(""),
+            content: String::from("Not Implemented!"),
         }
     }
 }

@@ -1,4 +1,8 @@
 use std::io::Write;
+use std::fs::OpenOptions;
+use std::io::prelude::*;
+use std::fs;
+use std::path::{Path, PathBuf};
 
 pub fn update_static_values(field_name: &str, value: f64, node_number: u8) -> std::io::Result<()> {
     let path = format!(
@@ -23,6 +27,52 @@ pub fn read_static_value(
         "data",
         field_name,
         node_number
+    );
+    let f: String = std::fs::read_to_string(path)?.parse()?;
+    Ok(f)
+}
+
+pub fn create_file(
+    file_name: &str,
+) {
+    let path = format!(
+        "{}/{}",
+        std::env::current_dir().unwrap().display(),
+        file_name,
+    );
+    println!("PATH {} ", path);
+    
+    let f = OpenOptions::new()
+        .create_new(true)
+        .write(true)
+        .append(true)
+        .open(path);
+    match f {
+        Ok(_) => {
+            /* ok */
+        }
+        Err(e) => { println!("{}", e) }
+    }
+}
+
+pub fn file_exists(
+    file_name: &str,
+) -> bool {
+    let mut p = std::env::current_dir().unwrap();
+
+    println!("PATH {}", p.display());
+    Path::new(&p).exists()
+}
+
+
+pub fn read_file(
+    file_name: &str,
+) -> Result<String, Box<dyn std::error::Error>> {
+    let path = format!(
+        "{}/{}/{}",
+        std::env::current_dir().unwrap().display(),
+        "data",
+        file_name,
     );
     let f: String = std::fs::read_to_string(path)?.parse()?;
     Ok(f)

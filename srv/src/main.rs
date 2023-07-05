@@ -7,6 +7,8 @@ use std::net::TcpListener;
 use std::process::Command;
 use std::sync::mpsc::channel;
 use std::{env, thread};
+//@todo: unclean
+use data_handler::global::runtime;
 
 const FIELDS: &[&str; 4] = &["temperature", "pressure", "humidity", "brightness"];
 
@@ -26,6 +28,7 @@ fn main() {
     println!("Check for db...");
     if !std::path::Path::new("./data/measurements.db").exists() {
         println!("db does not exist, creating one...!");
+        
         /********* FS PREPARATION *************/
         // mount ramfs
         Command::new("sh")
@@ -39,6 +42,7 @@ fn main() {
             .arg("sudo chown -R $USER:users ./data")
             .output()
             .expect("Failed");
+
         let conn = Connection::open("./data/measurements.db").unwrap();
 
         for field in FIELDS {
@@ -56,9 +60,11 @@ fn main() {
                 }
             }
         }
+
     } else {
         println!("Successful!");
     }
+    runtime::runtime_info::init_map();
 
     /********* RUN THREADS *************/
     thread::spawn(|| {
