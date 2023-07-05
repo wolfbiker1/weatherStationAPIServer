@@ -40,8 +40,35 @@ pub mod node_info {
         pub fn get_fields(&self) -> Vec<&'static str> {
             self.fields.clone()
         }
+
+        // @todo: Not a proper location
+        pub fn db_init(&self) {
+            for field in &self.fields {
+                let query: String = format!(
+                    "CREATE TABLE {} (time DATE, value NUMBER, origin NUMBER)",
+                    field
+                );
+                match &self.database_instance {
+                    Ok(db) => {
+                        let res = db.execute(&query, params![]);
+                        match res {
+                            Ok(_) => {}
+                            Err(msg) => {
+                                println!(
+                                    "Could not insert value fro"
+                                )
+                            }
+                        }
+                    }
+                    Err(_) => {
+                        panic!("No Database available for Node Container {}", self.location);
+                    }
+                }
+            }
+        }
+
+        // @todo: Not a proper location
         pub fn insert_value(&self, table_name: &str, value: f64, origin: u8) {
-            // @todo: Not a proper location
             let query: String = format!(
                 "insert into {} (time, value, origin) values (datetime('now','localtime'), {}, {})",
                 table_name, value, origin
@@ -179,6 +206,7 @@ pub mod node_info {
             last_update: None,
         };
 
+        node_info.db_init();
         unsafe {
             registered_nodes.push(node_info);
         }
