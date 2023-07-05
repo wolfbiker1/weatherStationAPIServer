@@ -1,5 +1,6 @@
 use super::current;
 pub mod node_info {
+    use ::inet::protocoll::http::HttpResponse;
     type FunctionCallback = fn(u8) -> bool;
     use super::current::{create_file, file_exists, read_file, append_to_file};
     use chrono::{DateTime, Utc};
@@ -124,33 +125,6 @@ pub mod node_info {
         }
     }
 
-    // pub fn new_node_register(number: u8) {
-    //     let available_nodes = read_file(FILE_NAME);
-
-    //     match available_nodes {
-    //         Ok(file_content) => {
-    //             if file_content.len() == 0 {
-    //                 return;
-    //             }
-
-    //             let node_numbers: Vec<_> = file_content.trim().split(",").collect();
-    //             for node in node_numbers.iter() {
-    //                 let n: &str = *node; 
-    //                 if n == number.to_string() {
-
-    //                 }
-    //                 // if (*node).parse().unwrap() as u8 == number {
-    //                     // return;
-    //                 // }
-    //             }
-    //         }
-    //         Err(_) => {            }
-    //     }
-
-    //     // write to file
-    //     append_to_file(FILE_NAME, &number.to_string());
-    // }
-
     pub fn is_registered(number: u8) -> bool {
         unsafe {
             let node_already_registered = registered_nodes
@@ -163,7 +137,18 @@ pub mod node_info {
         }
     }
 
-    pub fn register_node(number: u8, from_cache: bool) {
+    // @route
+    // @todo: find proper location
+    pub fn register_node_pub(args: Vec<&str>)  -> HttpResponse {
+        // @todo: error handling
+        register_node(args[0].parse::<u8>().unwrap(), false);
+        HttpResponse {
+            status: String::from("HTTP/2 200 OK"),
+            content_type: String::from("Content-Type: 'text/plain'"),
+            content: serde_json::to_string("ok").unwrap(),
+        }
+    }
+    fn register_node(number: u8, from_cache: bool) {
         if is_registered(number) {
             println!("{} is already registered", number);
             return;

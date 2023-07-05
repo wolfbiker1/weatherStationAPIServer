@@ -64,8 +64,7 @@ fn main() {
         println!("Successful!");
     }
     node::node_info::init_map();
-    node::node_info::register_node(160, false);
-
+    
     /********* RUN THREADS *************/
     thread::spawn(|| {
         udp::start_udp_listener(ip, udp_port, udp_sender);

@@ -3,6 +3,7 @@ pub mod route_handler {
     use lang::types::*;
 
     use crate::api::{current, history, update};
+    use crate::global::node;
 
     const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 10] = [
         (
@@ -53,7 +54,7 @@ pub mod route_handler {
 
     const POST_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 1] = [(
         ("POST", "/registernode", "/:node_number"),
-        update::update_path_handler::register_node,
+        node::node_info::register_node_pub,
     )];
     const ROUTES: [(RequestIdentifier, RequestHandler); 4] = [
         (("GET", "/timestamps"), current::get_timestamps),
