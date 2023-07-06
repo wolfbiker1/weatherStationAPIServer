@@ -39,16 +39,16 @@ pub mod route_handler {
             current::get_current_value,
         ),
         (
-            ("GET", "/pressure", "/:location"),
-            current::get_current_pressure,
+            ("GET", "/current", "/:pressure/:location"),
+            current::get_current_value,
         ),
         (
-            ("GET", "/humidity", "/:location"),
-            current::get_current_humidty,
+            ("GET", "/current", "/:humidity/:location"),
+            current::get_current_value,
         ),
         (
-            ("GET", "/brightness", "/:location"),
-            current::get_current_brightness,
+            ("GET", "/current", "/:brightness/:location"),
+            current::get_current_value,
         ),
     ];
 

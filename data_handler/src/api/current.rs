@@ -29,58 +29,6 @@ pub fn get_timestamps() -> HttpResponse {
     }
 }
 
-pub fn get_current_temp(args: Vec<&str>) -> HttpResponse {
-    let data = Data {
-        time: Local::now(),
-        value: fetch_value("temperature", args[0]),
-    };
-
-    HttpResponse {
-        status: String::from("HTTP/2 200 OK"),
-        content_type: String::from("Content-Type: 'text/plain'"),
-        content: serde_json::to_string(&data).unwrap(),
-    }
-}
-
-pub fn get_current_pressure(args: Vec<&str>) -> HttpResponse {
-    let data = Data {
-        time: Local::now(),
-        value: fetch_value("pressure", args[0]),
-    };
-
-    HttpResponse {
-        status: String::from("HTTP/2 200 OK"),
-        content_type: String::from("Content-Type: 'text/plain'"),
-        content: serde_json::to_string(&data).unwrap(),
-    }
-}
-
-pub fn get_current_humidty(args: Vec<&str>) -> HttpResponse {
-    let data = Data {
-        time: Local::now(),
-        value: fetch_value("humidity", args[0]),
-    };
-
-    HttpResponse {
-        status: String::from("HTTP/2 200 OK"),
-        content_type: String::from("Content-Type: 'text/plain'"),
-        content: serde_json::to_string(&data).unwrap(),
-    }
-}
-
-pub fn get_current_brightness(args: Vec<&str>) -> HttpResponse {
-    let data = Data {
-        time: Local::now(),
-        value: fetch_value("brightness", args[0]),
-    };
-
-    HttpResponse {
-        status: String::from("HTTP/2 200 OK"),
-        content_type: String::from("Content-Type: 'text/plain'"),
-        content: serde_json::to_string(&data).unwrap(),
-    }
-}
-
 pub fn get_current_value(args: Vec<&str>) -> HttpResponse {
     let data = Data {
         time: Local::now(),
