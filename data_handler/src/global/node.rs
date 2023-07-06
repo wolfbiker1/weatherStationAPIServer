@@ -22,6 +22,7 @@ pub mod node_info {
         pub humidity: f64,
     }
 
+    // #[derive(Debug)]
     pub struct NodeInfo {
         node_number: u8,
         registered: bool,
@@ -71,6 +72,7 @@ pub mod node_info {
         };
     }
 
+    // #[derive(debug)]
     static mut REGISTERED_NODES: Vec<NodeInfo> = Vec::new();
 
     pub fn get_node_container(node_number: u8) -> Option<NodeInfo> {
@@ -86,7 +88,9 @@ pub mod node_info {
     }
 
     pub fn insert_node_container(node: NodeInfo) {
-        unsafe { REGISTERED_NODES.push(node) }
+        unsafe { 
+            REGISTERED_NODES.push(node);
+        }
     }
 
     pub fn init_map() {

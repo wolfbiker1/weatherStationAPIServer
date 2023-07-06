@@ -24,7 +24,7 @@ pub mod database_module {
                     match res {
                         Ok(_) => {}
                         Err(msg) => {
-                            println!("Could not insert value fro")
+                            println!("Could not exec db_init_table_default - query : {}, err: {}", query, msg)
                         }
                     }
                 }
