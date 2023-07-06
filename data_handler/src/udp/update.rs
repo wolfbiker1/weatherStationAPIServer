@@ -39,7 +39,7 @@ fn apply_current_node_measurements(measurements: NodeMeasurements) {
                     "brightness" => 0.0,
                     _ => 0.0,
                 };
-
+                node.node_update_current(field, value);
                 node.node_insert_measurement(&field, value, measurements.node_number);
                 // insert_in_db(*field, value, measurements.node_number);
 

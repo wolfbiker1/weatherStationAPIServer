@@ -82,23 +82,20 @@ pub fn get_current_brightness(args: Vec<&str>) -> HttpResponse {
 }
 
 fn fetch_value(field: &str, node_number: &str) -> f64 {
-
     let node_number = match node_number.parse::<u8>() {
         Ok(n) => n,
-        Err(_) => 255
+        Err(_) => 255,
     };
     let node_option: Option<NodeInfo> = get_node_container(node_number);
 
-
-    match node_option {    
+    match node_option {
         Some(node) => {
-
             let val = match field {
-                "temperature" => { node.current_values.temperature },
+                "temperature" => node.current_values.temperature,
                 "pressure" => 255_f64,
-                "humidity" => { node.current_values.humidity },
+                "humidity" => node.current_values.humidity,
                 "brightness" => 255_f64,
-                &_ => 255_f64
+                &_ => 255_f64,
             };
             insert_node_container(node);
             val
@@ -108,7 +105,6 @@ fn fetch_value(field: &str, node_number: &str) -> f64 {
             255_f64
         }
     }
-
 }
 
 pub fn get_all_current_fields(args: Vec<&str>) -> HttpResponse {

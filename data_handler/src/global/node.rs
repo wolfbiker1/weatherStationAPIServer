@@ -60,6 +60,13 @@ pub mod node_info {
             self.database_instance
                 .db_insert_measurements(table, value, node_number);
         }
+        pub fn node_update_current(&mut self, field: &str, value: f64) {
+            match field {
+                "temperature" => self.current_values.temperature = value,
+                "humidity" => self.current_values.humidity = value,
+                _ => {}
+            };
+        }
     }
     lazy_static! {
         static ref NODE_MAPPING: HashMap<u8, (&'static str, Vec<&'static str>)> = {
@@ -88,7 +95,7 @@ pub mod node_info {
     }
 
     pub fn insert_node_container(node: NodeInfo) {
-        unsafe { 
+        unsafe {
             REGISTERED_NODES.push(node);
         }
     }

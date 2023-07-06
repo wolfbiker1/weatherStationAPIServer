@@ -1,6 +1,6 @@
 use connections::{connection_manager, udp};
+use data_handler::udp::update::listen_for_node_measurement;
 use mt_handler::ThreadPool;
-use data_handler::udp::update::{listen_for_node_measurement};
 use std::net::TcpListener;
 use std::process::Command;
 use std::sync::mpsc::channel;
