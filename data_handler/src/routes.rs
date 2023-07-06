@@ -5,7 +5,7 @@ pub mod route_handler {
     use crate::api::{current, history, update};
     use crate::global::node;
 
-    const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 10] = [
+    const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 9] = [
         (
             ("GET", "/trend/for", "/:field"),
             history::history_path_handler::trend_values,
@@ -22,10 +22,10 @@ pub mod route_handler {
             ("GET", "/past/for", "/:field/:hours"),
             history::history_path_handler::get_past_value,
         ),
-        (
-            ("GET", "/current", "/:location"),
-            current::get_all_current_fields,
-        ),
+        // (
+        //     ("GET", "/current", "/:location"),
+        //     current::get_all_current_fields,
+        // ),
         (
             (
                 "GET",
@@ -35,8 +35,8 @@ pub mod route_handler {
             history::history_path_handler::history_range,
         ),
         (
-            ("GET", "/temperature", "/:location"),
-            current::get_current_temp,
+            ("GET", "/current", "/:temperature/:location"),
+            current::get_current_value,
         ),
         (
             ("GET", "/pressure", "/:location"),

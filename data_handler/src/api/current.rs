@@ -81,6 +81,21 @@ pub fn get_current_brightness(args: Vec<&str>) -> HttpResponse {
     }
 }
 
+pub fn get_current_value(args: Vec<&str>) -> HttpResponse {
+    let data = Data {
+        time: Local::now(),
+        value: fetch_value(args[0], args[1]),
+    };
+
+    HttpResponse {
+        status: String::from("HTTP/2 200 OK"),
+        content_type: String::from("Content-Type: 'text/plain'"),
+        content: serde_json::to_string(&data).unwrap(),
+    }
+}
+
+
+
 fn fetch_value(field: &str, node_number: &str) -> f64 {
     let node_number = match node_number.parse::<u8>() {
         Ok(n) => n,
