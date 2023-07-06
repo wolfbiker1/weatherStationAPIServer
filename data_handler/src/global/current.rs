@@ -63,13 +63,10 @@ pub fn append_to_file(file_name: &str, data: &str) {
     );
     println!("PATH {} ", path);
 
-    let f = OpenOptions::new()
-        .write(true)
-        .append(true)
-        .open(path);
+    let f = OpenOptions::new().write(true).append(true).open(path);
     // println!("append {:?}",f);
     match f {
-        Ok(mut file) => { 
+        Ok(mut file) => {
             write!(file, "{},", data);
         }
         Err(e) => {

@@ -40,7 +40,7 @@ fn apply_current_node_measurements(measurements: NodeMeasurements) {
                     _ => 0.0,
                 };
 
-                node.insert_value(&field, value, measurements.node_number);
+                node.node_insert_measurement(&field, value, measurements.node_number);
                 // insert_in_db(*field, value, measurements.node_number);
 
                 let res = update_static_values(&field, value, measurements.node_number);
@@ -52,6 +52,7 @@ fn apply_current_node_measurements(measurements: NodeMeasurements) {
                     }
                 }
             }
+            // @todo!
             insert_node_container(node);
         }
         None => {}
