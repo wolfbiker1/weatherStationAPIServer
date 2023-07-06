@@ -1,4 +1,5 @@
 use super::super::global::current::read_static_value;
+use super::super::global::node::node_info::{get_node_container, insert_node_container, NodeInfo};
 use ::inet::protocoll::http::HttpResponse;
 use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
@@ -81,11 +82,32 @@ pub fn get_current_brightness(args: Vec<&str>) -> HttpResponse {
 }
 
 fn fetch_value(field: &str, node_number: &str) -> f64 {
-    let val = read_static_value(field, node_number);
-    match val {
-        Ok(res) => res.strip_suffix("\n").unwrap().parse::<f64>().unwrap(),
-        Err(_) => -1.0,
+    let node_number = match node_number.parse::<u8>() {
+        Ok(n) => n,
+        Err(_) => 255
+    };
+    let node_option: Option<NodeInfo> = get_node_container(node_number);
+    // match val {
+    //     Ok(res) => res.strip_suffix("\n").unwrap().parse::<f64>().unwrap(),
+    //     Err(_) => -1.0,
+    // }
+    
+
+    match node_option {    
+        Some(node) => {
+            let val = match field {
+                "temperature" => { return node.current_values.temperature },
+                "pressure" => 255_f64,
+                "humidity" => { return node.current_values.humidity },
+                "brightness" => 255_f64,
+                &_ => 255_f64
+            };
+            insert_node_container(node);
+            val
+        }
+        None => {255_f64 }
     }
+
 }
 
 pub fn get_all_current_fields(args: Vec<&str>) -> HttpResponse {

@@ -18,8 +18,8 @@ pub mod node_info {
     const PATH_APPENDIX: &str = "/data";
 
     pub struct CurrentValues {
-        temperature: f64,
-        humidity: f64
+        pub temperature: f64,
+        pub humidity: f64,
     }
 
     pub struct NodeInfo {
@@ -27,9 +27,8 @@ pub mod node_info {
         registered: bool,
         location: String,
         check_registration: FunctionCallback,
-        // database_instance: Result<rusqlite::Connection, rusqlite::Error>,
         database_instance: DatabaseInfo,
-        current_values: CurrentValues,
+        pub current_values: CurrentValues,
         fields: Vec<&'static str>,
         last_update: Option<DateTime<Utc>>,
     }
@@ -171,7 +170,10 @@ pub mod node_info {
             check_registration: is_registered,
             fields: NODE_MAPPING.get(&number).unwrap().1.clone(),
             database_instance: DatabaseInfo::new(&db_path),
-            current_values: CurrentValues { temperature : 0.0, humidity : 0.0},
+            current_values: CurrentValues {
+                temperature: 0.0,
+                humidity: 0.0,
+            },
             last_update: None,
         };
 
