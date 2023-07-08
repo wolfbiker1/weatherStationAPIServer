@@ -42,8 +42,6 @@ pub fn get_current_value(args: Vec<&str>) -> HttpResponse {
     }
 }
 
-
-
 fn fetch_value(field: &str, node_number: &str) -> f64 {
     let node_number = match node_number.parse::<u8>() {
         Ok(n) => n,

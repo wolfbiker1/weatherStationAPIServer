@@ -28,7 +28,9 @@ fn main() {
         .unwrap();
 
     println!("Check for ramdisk...");
-    if !String::from_utf8_lossy(&df_out.stdout).contains("ramfs") {
+    if !(String::from_utf8_lossy(&df_out.stdout).contains("ramfs")
+        || String::from_utf8_lossy(&df_out.stdout).contains("none"))
+    {
         println!("ramdisk does not exist, creating one...!");
 
         /********* FS PREPARATION *************/

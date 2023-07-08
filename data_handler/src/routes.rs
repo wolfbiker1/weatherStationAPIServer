@@ -5,7 +5,7 @@ pub mod route_handler {
     use crate::api::{current, history, update};
     use crate::global::node;
 
-    const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 9] = [
+    const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 6] = [
         (
             ("GET", "/trend/for", "/:field"),
             history::history_path_handler::trend_values,
@@ -19,7 +19,7 @@ pub mod route_handler {
             history::history_path_handler::barchart_values,
         ),
         (
-            ("GET", "/past/for", "/:field/:hours"),
+            ("GET", "/past/for", "/:nodenumber/:field/:hours"),
             history::history_path_handler::get_past_value,
         ),
         // (
@@ -35,21 +35,21 @@ pub mod route_handler {
             history::history_path_handler::history_range,
         ),
         (
-            ("GET", "/current", "/:temperature/:location"),
+            ("GET", "/current", "/:field/:location"),
             current::get_current_value,
         ),
-        (
-            ("GET", "/current", "/:pressure/:location"),
-            current::get_current_value,
-        ),
-        (
-            ("GET", "/current", "/:humidity/:location"),
-            current::get_current_value,
-        ),
-        (
-            ("GET", "/current", "/:brightness/:location"),
-            current::get_current_value,
-        ),
+        // (
+        //     ("GET", "/current", "/:pressure/:location"),
+        //     current::get_current_value,
+        // ),
+        // (
+        //     ("GET", "/current", "/:humidity/:location"),
+        //     current::get_current_value,
+        // ),
+        // (
+        //     ("GET", "/current", "/:brightness/:location"),
+        //     current::get_current_value,
+        // ),
     ];
 
     const POST_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 1] = [(

@@ -1,9 +1,11 @@
+use super::super::global::node::node_info::{get_node_container, insert_node_container, NodeInfo};
 use super::trend::trend_handler;
 use ::inet::protocoll::http::HttpResponse;
 
 pub mod history_path_handler {
-    use super::trend_handler;
-    use super::HttpResponse;
+    use super::*;
+    // use super::trend_handler;
+    // use super::HttpResponse;
     use chrono::Duration;
     use chrono::Local;
     use rusqlite::Connection;
@@ -219,39 +221,36 @@ pub mod history_path_handler {
     ///
     /// # Arguments
     ///
-    /// * `args` - A &str vector containing the following parameter: [0] - field, [1] - hours
+    /// * `args` - A &str vector containing the following parameter:
+    /// [0] - node number,
+    /// [1] - field,
+    /// [2] - hours
     ///
     /// # Returns
     /// * `HttpResponse` - A HttpResponse object containing the result.
     ///
     pub fn get_past_value(args: Vec<&str>) -> HttpResponse {
-        let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
-            panic!("Could not open database, reason: '{}'", error);
-        });
-
+        let node_number = match args[0].parse::<u8>() {
+            Ok(n) => n,
+            Err(_) => 255,
+        };
+        let node_option: Option<NodeInfo> = get_node_container(node_number);
         let now = Local::now();
-
         let n_hours_back = now - Duration::hours(args[1].parse::<u32>().unwrap() as i64);
         let minute_offset = n_hours_back - Duration::minutes(1 as i64);
 
-        let query: String = format!(
-            "select * from {} where time < '{}' and time > '{}'",
-            args[0], n_hours_back, minute_offset
-        );
-
-        let mut stmt = conn.prepare(&query).unwrap();
         let mut result: Vec<String> = Vec::new();
-        let res_iter = stmt.query_map([], |row| {
-            let p = QueryResult {
-                date_of_record: row.get(0).unwrap(),
-                value: row.get(1).unwrap(),
-            };
-            Ok(p)
-        });
-        for res in res_iter.unwrap() {
-            let p = res.unwrap();
-            result.push(serde_json::to_string(&p).unwrap());
+        match node_option {
+            Some(node) => {
+                result = node.node_get_value_history(args[1], n_hours_back, minute_offset);
+                insert_node_container(node);
+            }
+            None => {
+                println!("Node not found");
+            }
         }
+
+
         HttpResponse {
             status: String::from("HTTP/2 200 OK"),
             content_type: String::from("Content-Type: 'text/plain'"),

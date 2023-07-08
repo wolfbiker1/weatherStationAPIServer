@@ -56,6 +56,11 @@ pub mod node_info {
                 self.database_instance.db_init_table_default(field);
             }
         }
+
+        pub fn node_get_value_history(&self, table: &str, hours_back: chrono::DateTime<chrono::Local>, minute_offset: chrono::DateTime<chrono::Local>) -> Vec<String> {
+            self.database_instance.db_query_map(table, hours_back, minute_offset)
+        }
+
         pub fn node_insert_measurement(&self, table: &str, value: f64, node_number: u8) {
             self.database_instance
                 .db_insert_measurements(table, value, node_number);
