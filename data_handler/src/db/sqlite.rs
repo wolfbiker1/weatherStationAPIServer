@@ -77,6 +77,7 @@ pub mod database_module {
             table, hours_back, minute_offset
         );
 
+        // @todo
         let mut stmt = self.database_instance.as_ref().unwrap().prepare(&query).unwrap();
         let res_iter = stmt.query_map([], |row| {
             let p = QueryResult {
@@ -88,6 +89,7 @@ pub mod database_module {
         let mut result: Vec<String> = Vec::new();
         for res in res_iter.unwrap() {
             let p = res.unwrap();
+
             result.push(serde_json::to_string(&p).unwrap());
         }
         result

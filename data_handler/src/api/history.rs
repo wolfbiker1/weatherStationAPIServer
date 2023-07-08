@@ -237,12 +237,12 @@ pub mod history_path_handler {
         let node_option: Option<NodeInfo> = get_node_container(node_number);
         let now = Local::now();
         let n_hours_back = now - Duration::hours(args[2].parse::<u32>().unwrap() as i64);
-        let minute_offset = n_hours_back - Duration::minutes(1 as i64);
+
 
         let mut result: Vec<String> = Vec::new();
         match node_option {
             Some(node) => {
-                result = node.node_get_value_history(args[1], n_hours_back, minute_offset);
+                result = node.node_get_value_history(args[1], now, n_hours_back);
                 insert_node_container(node);
             }
             None => {
