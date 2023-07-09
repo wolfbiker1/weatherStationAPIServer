@@ -1,8 +1,11 @@
 use super::super::global::node::node_info::{get_node_container, insert_node_container, NodeInfo};
+use super::super::global::types;
 use super::trend::trend_handler;
 use ::inet::protocoll::http::HttpResponse;
 
 pub mod history_path_handler {
+
+    use super::types::QueryResult;
     use super::*;
     // use super::trend_handler;
     // use super::HttpResponse;
@@ -10,14 +13,7 @@ pub mod history_path_handler {
     use chrono::Local;
     use rusqlite::Connection;
     use serde::{Deserialize, Serialize};
-    use serde_json::json;
     use std::str;
-
-    #[derive(Debug, Serialize, Deserialize)]
-    struct QueryResult {
-        date_of_record: String,
-        value: f32,
-    }
 
     #[derive(Debug, Serialize, Deserialize)]
     struct QueryValueOnly {
@@ -37,47 +33,38 @@ pub mod history_path_handler {
         brightness: serde_json::Value,
     }
 
-    impl DatesCollection {
-        pub fn new() -> DatesCollection {
-            DatesCollection {
-                temperature: json!({"foo": "bar"}),
-                pressure: json!({"foo": "bar"}),
-                humidity: json!({"foo": "bar"}),
-                brightness: json!({"foo": "bar"}),
-            }
-        }
-        pub fn change_value(mut self, field: &str, value: Vec<String>) -> DatesCollection {
-            match field {
-                "temperature" => {
-                    self.temperature =
-                        serde_json::Value::String(serde_json::to_string(&value).unwrap())
-                }
-                "pressure" => {
-                    self.pressure =
-                        serde_json::Value::String(serde_json::to_string(&value).unwrap())
-                }
-                "humidity" => {
-                    self.humidity =
-                        serde_json::Value::String(serde_json::to_string(&value).unwrap())
-                }
-                "brightness" => {
-                    self.brightness =
-                        serde_json::Value::String(serde_json::to_string(&value).unwrap())
-                }
-                _ => {}
-            }
-            self
-        }
-    }
-
-    #[derive(Debug, Serialize, Deserialize)]
-    struct Peaks {
-        date: String,
-        val: f32,
-        // ident: &str,
-    }
-
-    const FIELDS: &[&str; 4] = &["temperature", "pressure", "humidity", "brightness"];
+    // impl DatesCollection {
+    //     pub fn new() -> DatesCollection {
+    //         DatesCollection {
+    //             temperature: json!({"foo": "bar"}),
+    //             pressure: json!({"foo": "bar"}),
+    //             humidity: json!({"foo": "bar"}),
+    //             brightness: json!({"foo": "bar"}),
+    //         }
+    //     }
+    //     pub fn change_value(mut self, field: &str, value: Vec<String>) -> DatesCollection {
+    //         match field {
+    //             "temperature" => {
+    //                 self.temperature =
+    //                     serde_json::Value::String(serde_json::to_string(&value).unwrap())
+    //             }
+    //             "pressure" => {
+    //                 self.pressure =
+    //                     serde_json::Value::String(serde_json::to_string(&value).unwrap())
+    //             }
+    //             "humidity" => {
+    //                 self.humidity =
+    //                     serde_json::Value::String(serde_json::to_string(&value).unwrap())
+    //             }
+    //             "brightness" => {
+    //                 self.brightness =
+    //                     serde_json::Value::String(serde_json::to_string(&value).unwrap())
+    //             }
+    //             _ => {}
+    //         }
+    //         self
+    //     }
+    // }
 
     ///
     /// Returns every available day where entries exists.
@@ -90,32 +77,32 @@ pub mod history_path_handler {
     /// * `HttpResponse` - A HttpResponse object containing the result.
     ///
     pub fn available_dates() -> HttpResponse {
-        let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
-            panic!("Could not open database, reason: '{}'", error);
-        });
+        // let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
+        //     panic!("Could not open database, reason: '{}'", error);
+        // });
 
-        let mut dt: DatesCollection = DatesCollection::new();
-        for f in FIELDS {
-            let mut result: Vec<String> = Vec::new();
-            let query: String = format!("select distinct date(time) from {}", f);
-            println!("{}", query);
-            let mut stmt = conn.prepare(&query).unwrap();
-            let date_iter = stmt.query_map([], |row| {
-                let d = Dates {
-                    date: row.get(0).unwrap(),
-                };
-                Ok(d)
-            });
-            for date in date_iter.unwrap() {
-                let p = date.unwrap();
-                result.push(p.date);
-            }
-            dt = dt.change_value(f, result);
-        }
+        // let mut dt: DatesCollection = DatesCollection::new();
+        // for f in FIELDS {
+        //     let mut result: Vec<String> = Vec::new();
+        //     let query: String = format!("select distinct date(time) from {}", f);
+        //     println!("{}", query);
+        //     let mut stmt = conn.prepare(&query).unwrap();
+        //     let date_iter = stmt.query_map([], |row| {
+        //         let d = Dates {
+        //             date: row.get(0).unwrap(),
+        //         };
+        //         Ok(d)
+        //     });
+        //     for date in date_iter.unwrap() {
+        //         let p = date.unwrap();
+        //         result.push(p.date);
+        //     }
+        //     dt = dt.change_value(f, result);
+        // }
         HttpResponse {
             status: String::from("HTTP/2 200 OK"),
             content_type: String::from("Content-Type: 'text/plain'"),
-            content: format!("{:?}", serde_json::to_string(&dt).unwrap()),
+            content: format!("{:?}", "serde_json::to_string(&dt).unwrap()"),
         }
     }
 
@@ -170,45 +157,29 @@ pub mod history_path_handler {
     ///
     /// # Arguments
     ///
-    /// * `None`
+    /// * `args` - A &str vector containing the following parameter:
+    /// [0] - node number,
     ///
     /// # Returns
     /// * `HttpResponse` - A HttpResponse object containing the result.
     ///
-    pub fn peaks() -> HttpResponse {
-        let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
-            panic!("Could not open database, reason: '{}'", error);
-        });
-
+    pub fn peaks(args: Vec<&str>) -> HttpResponse {
+        let node_number = match args[0].parse::<u8>() {
+            Ok(n) => n,
+            Err(_) => 255,
+        };
+        let node_option: Option<NodeInfo> = get_node_container(node_number);
         let mut result: Vec<String> = Vec::new();
-        let t: Vec<&str> = vec!["min", "avg", "max"];
-        for field in FIELDS {
-            //let query: String = format!("select max(value), avg(value), min(value) from {}", field);
-
-            // TODO WIP
-            // Praise LordSaitamaa (https://github.com/LordSaitamaa) for support on database
-            // queries
-            let query: String = format!("select *, max(value) from {} union select *, min(value) from {} union select *,avg(value) from {}  order by value", field, field, field);
-            let mut stmt = conn.prepare(&query).unwrap();
-            let peak_iter = stmt.query_map([], |row| {
-                let p = Peaks {
-                    date: row.get(0).unwrap(),
-                    // avg: row.get(1).unwrap(),
-                    val: row.get(2).unwrap(),
-                };
-                Ok(p)
-            });
-            for peak in peak_iter.unwrap().enumerate() {
-                let p = peak.1.unwrap();
-                let peak_as_json = json!({
-                    *field: {
-                    "ident": t[peak.0],
-                    "content": p
-                    }
-                });
-                result.push(serde_json::to_string(&peak_as_json).unwrap());
+        match node_option {
+            Some(node) => {
+                result = node.node_get_value_peaks();
+                insert_node_container(node);
+            }
+            None => {
+                println!("Node not found");
             }
         }
+
         HttpResponse {
             status: String::from("HTTP/2 200 OK"),
             content_type: String::from("Content-Type: 'text/plain'"),
@@ -241,7 +212,7 @@ pub mod history_path_handler {
         let mut result: Vec<String> = Vec::new();
         match node_option {
             Some(node) => {
-                result = node.node_get_value_history(args[1], now, n_hours_back);
+                result = node.node_get_value_last24hours(args[1], now, n_hours_back);
                 insert_node_container(node);
             }
             None => {
@@ -276,42 +247,6 @@ pub mod history_path_handler {
 
         let query: String = format!("select strftime('%H:%M', time), avg(value) from {} where time < '{}' and time > '{}'  group by strftime ('%H',time) order by time", args[0], now, six_hours_back);
 
-        let mut stmt = conn.prepare(&query).unwrap();
-        let mut result: Vec<String> = Vec::new();
-        let res_iter = stmt.query_map([], |row| {
-            let p = QueryResult {
-                date_of_record: row.get(0).unwrap(),
-                value: row.get(1).unwrap(),
-            };
-            Ok(p)
-        });
-        for res in res_iter.unwrap() {
-            let p = res.unwrap();
-            result.push(serde_json::to_string(&p).unwrap());
-        }
-        HttpResponse {
-            status: String::from("HTTP/2 200 OK"),
-            content_type: String::from("Content-Type: 'text/plain'"),
-            content: format!("{:?}", result),
-        }
-    }
-
-    ///
-    /// Returns all values for the given field.
-    ///
-    /// # Arguments
-    ///
-    /// * `args` - A &str vector containing the following parameter: [0] - field,
-    ///
-    /// # Returns
-    /// * `HttpResponse` - A HttpResponse object containing the result.
-    ///
-    pub fn history_values(args: Vec<&str>) -> HttpResponse {
-        let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
-            panic!("Could not open database, reason: '{}'", error);
-        });
-
-        let query: String = format!("select * from {}", args[0]);
         let mut stmt = conn.prepare(&query).unwrap();
         let mut result: Vec<String> = Vec::new();
         let res_iter = stmt.query_map([], |row| {

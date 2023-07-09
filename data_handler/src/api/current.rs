@@ -1,4 +1,3 @@
-use super::super::global::current::read_static_value;
 use super::super::global::node::node_info::{get_node_container, insert_node_container, NodeInfo};
 use ::inet::protocoll::http::HttpResponse;
 use chrono::{DateTime, Local};
@@ -11,7 +10,7 @@ pub struct Data {
 }
 
 pub fn get_trends() -> HttpResponse {
-    let mut data: Vec<f64> = Vec::new();
+    let data: Vec<f64> = Vec::new();
 
     HttpResponse {
         status: String::from("HTTP/2 200 OK"),
@@ -21,7 +20,7 @@ pub fn get_trends() -> HttpResponse {
 }
 
 pub fn get_timestamps() -> HttpResponse {
-    let mut data: Vec<String> = Vec::new();
+    let data: Vec<String> = Vec::new();
     HttpResponse {
         status: String::from("HTTP/2 200 OK"),
         content_type: String::from("Content-Type: 'text/plain'"),

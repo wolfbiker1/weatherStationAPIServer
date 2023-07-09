@@ -1,21 +1,16 @@
 use super::super::db::sqlite::database_module;
 use super::current;
 pub mod node_info {
+    use super::current::{append_to_file, create_file, read_file};
     use super::database_module::DatabaseInfo;
     use ::inet::protocoll::http::HttpResponse;
-    type FunctionCallback = fn(u8) -> bool;
-    use super::current::{append_to_file, create_file, file_exists, read_file};
     use chrono::{DateTime, Utc};
     use lazy_static::lazy_static;
-    use rusqlite::{params, Connection};
     use std::collections::HashMap;
 
-    use std::path::PathBuf;
-    use std::sync::Mutex;
     use std::time::SystemTime;
 
     const FILE_NAME: &str = "./registered_nodes";
-    const PATH_APPENDIX: &str = "/data";
 
     pub struct CurrentValues {
         pub temperature: f64,
@@ -26,8 +21,8 @@ pub mod node_info {
     pub struct NodeInfo {
         node_number: u8,
         registered: bool,
-        location: String,
-        check_registration: FunctionCallback,
+        // location: String,
+        // check_registration: FunctionCallback,
         database_instance: DatabaseInfo,
         pub current_values: CurrentValues,
         fields: Vec<&'static str>,
@@ -35,12 +30,22 @@ pub mod node_info {
     }
 
     impl NodeInfo {
-        fn set_callback(&mut self, c: FunctionCallback) {
-            self.check_registration = c;
+        // pub fn node_new(node_number: u8, node_location: String) -> NodeInfo {
+        //     NodeInfo {
+        //         node_number: node_number,
+        //         registered: true,
+        //         location: node_location,
+        //         check_registration: is_registered,
+        //         database_instance: None,
+        //         last_update: None,
+        //     }
+        // }
+        pub fn node_get_number(&self) -> u8 {
+            self.node_number
         }
 
-        fn process_events(&self, node_number: u8) {
-            (self.check_registration)(node_number);
+        pub fn node_is_registered(&self) -> bool {
+            self.registered
         }
 
         pub fn update_timestamp(&mut self) {
@@ -86,11 +91,15 @@ pub mod node_info {
             )
         }
 
+        pub fn node_get_value_peaks(&self) -> Vec<String> {
+            self.database_instance.db_query_peaks(self.fields.as_ref())
+        }
+
         pub fn node_insert_measurement(&self, table: &str, value: f64, node_number: u8) {
             self.database_instance
                 .db_insert_measurements(table, value, node_number);
         }
-        
+
         pub fn node_update_current(&mut self, field: &str, value: f64) {
             match field {
                 "temperature" => self.current_values.temperature = value,
@@ -151,8 +160,6 @@ pub mod node_info {
                             println!("{}", e);
                         }
                     }
-                    // match par
-                    // register_node((*node).parse().unwrap(), true);
                 }
             }
             Err(_) => {
@@ -190,13 +197,13 @@ pub mod node_info {
             return;
         }
 
-        let node_location: String = match NODE_MAPPING.get(&number) {
-            Some(res) => {
-                let f = &*res;
-                String::from(f.0)
-            }
-            None => String::from("Unknown location"),
-        };
+        // let node_location: String = match NODE_MAPPING.get(&number) {
+        //     Some(res) => {
+        //         let f = &*res;
+        //         String::from(f.0)
+        //     }
+        //     None => String::from("Unknown location"),
+        // };
 
         let mut db_path: String = "./data/".to_owned();
         let db_name: &str = NODE_MAPPING.get(&number).unwrap().0;
@@ -208,8 +215,8 @@ pub mod node_info {
         let node_info: NodeInfo = NodeInfo {
             node_number: number,
             registered: true,
-            location: node_location,
-            check_registration: is_registered,
+            // location: node_location,
+            // check_registration: is_registered,
             fields: NODE_MAPPING.get(&number).unwrap().1.clone(),
             database_instance: DatabaseInfo::new(&db_path),
             current_values: CurrentValues {

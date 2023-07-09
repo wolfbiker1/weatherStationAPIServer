@@ -2,17 +2,13 @@ pub mod route_handler {
     use inet::protocoll::http::HttpResponse;
     use lang::types::*;
 
-    use crate::api::{current, history, update};
+    use crate::api::{current, history};
     use crate::global::node;
 
     const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 6] = [
         (
             ("GET", "/trend/for", "/:field"),
             history::history_path_handler::trend_values,
-        ),
-        (
-            ("GET", "/hist/for", "/:field"),
-            history::history_path_handler::history_values,
         ),
         (
             ("GET", "/barchart/for", "/:field"),
@@ -34,15 +30,18 @@ pub mod route_handler {
             ("GET", "/current", "/:field/:node_number"),
             current::get_current_value,
         ),
+        (
+            ("GET", "/peaks", "/:node_number"),
+            history::history_path_handler::peaks,
+        ),
     ];
 
     const POST_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 1] = [(
         ("POST", "/registernode", "/:node_number"),
         node::node_info::register_node_pub,
     )];
-    const ROUTES: [(RequestIdentifier, RequestHandler); 4] = [
+    const ROUTES: [(RequestIdentifier, RequestHandler); 3] = [
         (("GET", "/timestamps"), current::get_timestamps),
-        (("GET", "/peaks"), history::history_path_handler::peaks),
         (("GET", "/trend/current"), current::get_trends),
         (
             ("GET", "/available_dates"),

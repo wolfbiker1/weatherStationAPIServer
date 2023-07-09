@@ -1,16 +1,8 @@
-use rusqlite::{params, Connection, Result};
-
+use super::super::global::types;
 pub mod database_module {
-    use chrono::Duration;
-    use chrono::Local;
+    use super::types::{Peaks, QueryResult};
     use rusqlite::{params, Connection, Result};
-    use serde::{Deserialize, Serialize};
-
-    #[derive(Debug, Serialize, Deserialize)]
-    struct QueryResult {
-        date_of_record: String,
-        value: f32,
-    }
+    use serde_json::json;
 
     pub struct DatabaseInfo {
         database_instance: Result<rusqlite::Connection, rusqlite::Error>,
@@ -131,6 +123,41 @@ pub mod database_module {
             for res in res_iter.unwrap() {
                 let p = res.unwrap();
                 result.push(serde_json::to_string(&p).unwrap());
+            }
+            result
+        }
+
+        pub fn db_query_peaks(&self, available_fields: &Vec<&'static str>) -> Vec<String> {
+            let mut result: Vec<String> = Vec::new();
+            let t: Vec<&str> = vec!["min", "avg", "max"];
+
+            for field in available_fields {
+                let query: String = format!("select *, max(value) from {} union select *, min(value) from {} union select *,avg(value) from {}  order by value", field, field, field);
+
+                let mut stmt = self
+                    .database_instance
+                    .as_ref()
+                    .unwrap()
+                    .prepare(&query)
+                    .unwrap();
+
+                let peak_iter = stmt.query_map([], |row| {
+                    let p = Peaks {
+                        date: row.get(0).unwrap(),
+                        val: row.get(2).unwrap(),
+                    };
+                    Ok(p)
+                });
+                for peak in peak_iter.unwrap().enumerate() {
+                    let p = peak.1.unwrap();
+                    let peak_as_json = json!({
+                        *field: {
+                            "ident": t[peak.0],
+                        "content": p
+                        }
+                    });
+                    result.push(serde_json::to_string(&peak_as_json).unwrap());
+                }
             }
             result
         }

@@ -1,8 +1,6 @@
-use std::fs;
 use std::fs::OpenOptions;
-use std::io::prelude::*;
 use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 pub fn update_static_values(field_name: &str, value: f64, node_number: u8) -> std::io::Result<()> {
     let path = format!(
@@ -61,13 +59,18 @@ pub fn append_to_file(file_name: &str, data: &str) {
         "data",
         file_name,
     );
-    println!("PATH {} ", path);
 
     let f = OpenOptions::new().write(true).append(true).open(path);
-    // println!("append {:?}",f);
+
     match f {
         Ok(mut file) => {
-            write!(file, "{},", data);
+            let result = write!(file, "{},", data);
+            match result {
+                Ok(_) => {}
+                Err(e) => {
+                    println!("{}", e)
+                }
+            }
         }
         Err(e) => {
             println!("{}", e)
@@ -75,8 +78,8 @@ pub fn append_to_file(file_name: &str, data: &str) {
     }
 }
 
-pub fn file_exists(file_name: &str) -> bool {
-    let mut p = std::env::current_dir().unwrap();
+pub fn file_exists(_file_name: &str) -> bool {
+    let p = std::env::current_dir().unwrap();
 
     println!("file_exists PATH {}", p.display());
     Path::new(&p).exists()

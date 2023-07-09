@@ -6,8 +6,6 @@ pub mod global;
 pub mod routes;
 pub mod udp;
 
-const FIELDS: &[&str; 4] = &["temperature", "pressure", "humidity", "brightness"];
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Measurements {
     temperature: String,
