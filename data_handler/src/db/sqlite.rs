@@ -132,7 +132,7 @@ pub mod database_module {
             available_fields: &Vec<&'static str>,
         ) -> DatesCollection {
             let mut dt: DatesCollection = DatesCollection::new();
-            let result: Vec<String> = Vec::new();
+
             for f in available_fields {
                 let mut result: Vec<String> = Vec::new();
                 let query: String = format!("select distinct date(time) from {}", f);
