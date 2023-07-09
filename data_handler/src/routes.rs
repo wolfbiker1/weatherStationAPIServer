@@ -5,7 +5,7 @@ pub mod route_handler {
     use crate::api::{current, history};
     use crate::global::node;
 
-    const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 6] = [
+    const GET_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 7] = [
         (
             ("GET", "/trend/for", "/:field"),
             history::history_path_handler::trend_values,
@@ -34,20 +34,17 @@ pub mod route_handler {
             ("GET", "/peaks", "/:node_number"),
             history::history_path_handler::peaks,
         ),
+        (
+            ("GET", "/available_dates", "/:node_number"),
+            history::history_path_handler::available_dates,
+        ),
     ];
 
     const POST_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 1] = [(
         ("POST", "/registernode", "/:node_number"),
         node::node_info::register_node_pub,
     )];
-    const ROUTES: [(RequestIdentifier, RequestHandler); 3] = [
-        (("GET", "/timestamps"), current::get_timestamps),
-        (("GET", "/trend/current"), current::get_trends),
-        (
-            ("GET", "/available_dates"),
-            history::history_path_handler::available_dates,
-        ),
-    ];
+    const ROUTES: [(RequestIdentifier, RequestHandler); 0] = [];
 
     pub fn redirect_to_handler(req: (&str, &str)) -> HttpResponse {
         for (_i, &item) in ROUTES.iter().enumerate() {

@@ -1,8 +1,10 @@
 use super::super::db::sqlite::database_module;
+use super::super::global::types;
 use super::current;
 pub mod node_info {
     use super::current::{append_to_file, create_file, read_file};
     use super::database_module::DatabaseInfo;
+    use super::types::DatesCollection;
     use ::inet::protocoll::http::HttpResponse;
     use chrono::{DateTime, Utc};
     use lazy_static::lazy_static;
@@ -93,6 +95,11 @@ pub mod node_info {
 
         pub fn node_get_value_peaks(&self) -> Vec<String> {
             self.database_instance.db_query_peaks(self.fields.as_ref())
+        }
+
+        pub fn node_get_available_dates(&self) -> DatesCollection {
+            self.database_instance
+                .db_query_available_dates(self.fields.as_ref())
         }
 
         pub fn node_insert_measurement(&self, table: &str, value: f64, node_number: u8) {

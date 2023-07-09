@@ -9,25 +9,6 @@ pub struct Data {
     value: f64,
 }
 
-pub fn get_trends() -> HttpResponse {
-    let data: Vec<f64> = Vec::new();
-
-    HttpResponse {
-        status: String::from("HTTP/2 200 OK"),
-        content_type: String::from("Content-Type: 'text/plain'"),
-        content: format!("{:?}", data),
-    }
-}
-
-pub fn get_timestamps() -> HttpResponse {
-    let data: Vec<String> = Vec::new();
-    HttpResponse {
-        status: String::from("HTTP/2 200 OK"),
-        content_type: String::from("Content-Type: 'text/plain'"),
-        content: format!("{:?}", data),
-    }
-}
-
 pub fn get_current_value(args: Vec<&str>) -> HttpResponse {
     let data = Data {
         time: Local::now(),

@@ -5,7 +5,7 @@ use ::inet::protocoll::http::HttpResponse;
 
 pub mod history_path_handler {
 
-    use super::types::QueryResult;
+    use super::types::{DatesCollection, QueryResult};
     use super::*;
     // use super::trend_handler;
     // use super::HttpResponse;
@@ -14,95 +14,43 @@ pub mod history_path_handler {
     use rusqlite::Connection;
     use serde::{Deserialize, Serialize};
     use std::str;
-
     #[derive(Debug, Serialize, Deserialize)]
     struct QueryValueOnly {
         value: f64,
     }
-
-    #[derive(Debug, Serialize, Deserialize)]
-    struct Dates {
-        date: String,
-    }
-
-    #[derive(Debug, Serialize, Deserialize)]
-    struct DatesCollection {
-        temperature: serde_json::Value,
-        pressure: serde_json::Value,
-        humidity: serde_json::Value,
-        brightness: serde_json::Value,
-    }
-
-    // impl DatesCollection {
-    //     pub fn new() -> DatesCollection {
-    //         DatesCollection {
-    //             temperature: json!({"foo": "bar"}),
-    //             pressure: json!({"foo": "bar"}),
-    //             humidity: json!({"foo": "bar"}),
-    //             brightness: json!({"foo": "bar"}),
-    //         }
-    //     }
-    //     pub fn change_value(mut self, field: &str, value: Vec<String>) -> DatesCollection {
-    //         match field {
-    //             "temperature" => {
-    //                 self.temperature =
-    //                     serde_json::Value::String(serde_json::to_string(&value).unwrap())
-    //             }
-    //             "pressure" => {
-    //                 self.pressure =
-    //                     serde_json::Value::String(serde_json::to_string(&value).unwrap())
-    //             }
-    //             "humidity" => {
-    //                 self.humidity =
-    //                     serde_json::Value::String(serde_json::to_string(&value).unwrap())
-    //             }
-    //             "brightness" => {
-    //                 self.brightness =
-    //                     serde_json::Value::String(serde_json::to_string(&value).unwrap())
-    //             }
-    //             _ => {}
-    //         }
-    //         self
-    //     }
-    // }
 
     ///
     /// Returns every available day where entries exists.
     ///
     /// # Arguments
     ///
-    /// * `None`
+    /// * `args` - A &str vector containing the following parameter:
+    ///     [0] - field,
     ///
     /// # Returns
     /// * `HttpResponse` - A HttpResponse object containing the result.
     ///
-    pub fn available_dates() -> HttpResponse {
-        // let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
-        //     panic!("Could not open database, reason: '{}'", error);
-        // });
+    pub fn available_dates(args: Vec<&str>) -> HttpResponse {
+        let node_number = match args[0].parse::<u8>() {
+            Ok(n) => n,
+            Err(_) => 255,
+        };
+        let node_option: Option<NodeInfo> = get_node_container(node_number);
+        let mut dt = DatesCollection::new();
+        match node_option {
+            Some(node) => {
+                dt = node.node_get_available_dates();
+                insert_node_container(node);
+            }
+            None => {
+                println!("Node not found");
+            }
+        }
 
-        // let mut dt: DatesCollection = DatesCollection::new();
-        // for f in FIELDS {
-        //     let mut result: Vec<String> = Vec::new();
-        //     let query: String = format!("select distinct date(time) from {}", f);
-        //     println!("{}", query);
-        //     let mut stmt = conn.prepare(&query).unwrap();
-        //     let date_iter = stmt.query_map([], |row| {
-        //         let d = Dates {
-        //             date: row.get(0).unwrap(),
-        //         };
-        //         Ok(d)
-        //     });
-        //     for date in date_iter.unwrap() {
-        //         let p = date.unwrap();
-        //         result.push(p.date);
-        //     }
-        //     dt = dt.change_value(f, result);
-        // }
         HttpResponse {
             status: String::from("HTTP/2 200 OK"),
             content_type: String::from("Content-Type: 'text/plain'"),
-            content: format!("{:?}", "serde_json::to_string(&dt).unwrap()"),
+            content: format!("{:?}", serde_json::to_string(&dt).unwrap()),
         }
     }
 
@@ -111,7 +59,8 @@ pub mod history_path_handler {
     ///
     /// # Arguments
     ///
-    /// * `args` - A &str vector containing the following parameter: [0] - field,
+    /// * `args` - A &str vector containing the following parameter:
+    ///     [0] - field,
     ///
     /// # Returns
     /// * `HttpResponse` - A HttpResponse object containing the result [m = gradient, b = intercept].

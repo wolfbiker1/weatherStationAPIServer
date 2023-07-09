@@ -1,6 +1,6 @@
 use super::super::global::types;
 pub mod database_module {
-    use super::types::{Peaks, QueryResult};
+    use super::types::{Dates, DatesCollection, Peaks, QueryResult};
     use rusqlite::{params, Connection, Result};
     use serde_json::json;
 
@@ -125,6 +125,36 @@ pub mod database_module {
                 result.push(serde_json::to_string(&p).unwrap());
             }
             result
+        }
+
+        pub fn db_query_available_dates(
+            &self,
+            available_fields: &Vec<&'static str>,
+        ) -> DatesCollection {
+            let mut dt: DatesCollection = DatesCollection::new();
+            let result: Vec<String> = Vec::new();
+            for f in available_fields {
+                let mut result: Vec<String> = Vec::new();
+                let query: String = format!("select distinct date(time) from {}", f);
+                let mut stmt = self
+                    .database_instance
+                    .as_ref()
+                    .unwrap()
+                    .prepare(&query)
+                    .unwrap();
+                let date_iter = stmt.query_map([], |row| {
+                    let d = Dates {
+                        date: row.get(0).unwrap(),
+                    };
+                    Ok(d)
+                });
+                for date in date_iter.unwrap() {
+                    let p = date.unwrap();
+                    result.push(p.date);
+                }
+                dt = dt.change_value(f, result);
+            }
+            dt
         }
 
         pub fn db_query_peaks(&self, available_fields: &Vec<&'static str>) -> Vec<String> {
