@@ -238,7 +238,6 @@ pub mod history_path_handler {
         let now = Local::now();
         let n_hours_back = now - Duration::hours(args[2].parse::<u32>().unwrap() as i64);
 
-
         let mut result: Vec<String> = Vec::new();
         match node_option {
             Some(node) => {
@@ -249,7 +248,6 @@ pub mod history_path_handler {
                 println!("Node not found");
             }
         }
-
 
         HttpResponse {
             status: String::from("HTTP/2 200 OK"),
@@ -340,34 +338,35 @@ pub mod history_path_handler {
     /// # Arguments
     ///
     /// * `args` - A &str vector containing the following parameters:
-    ///            [0] - field, [1] - left bound date, [2] - left bound time, [3] - right bound date, [4] - right bound time.
+    ///             [0] - node number,
+    ///             [1] - field,
+    ///             [2] - left bound date,
+    ///             [3] - left bound time,
+    ///             [4] - right bound date,
+    ///             [5] - right bound time.
     ///
     /// # Returns
     /// * `HttpResponse` - A HttpResponse object containing the result.
     ///
     pub fn history_range(args: Vec<&str>) -> HttpResponse {
-        let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
-            panic!("Could not open database, reason: '{}'", error);
-        });
+        let node_number = match args[0].parse::<u8>() {
+            Ok(n) => n,
+            Err(_) => 255,
+        };
+        let node_option: Option<NodeInfo> = get_node_container(node_number);
 
-        let query: String = format!(
-            "select * from {} where time > '{} {}' and time < '{} {}'",
-            args[0], args[1], args[2], args[3], args[4]
-        );
-        println!("{}", query);
-        let mut stmt = conn.prepare(&query).unwrap();
         let mut result: Vec<String> = Vec::new();
-        let res_iter = stmt.query_map([], |row| {
-            let p = QueryResult {
-                date_of_record: row.get(0).unwrap(),
-                value: row.get(1).unwrap(),
-            };
-            Ok(p)
-        });
-        for res in res_iter.unwrap() {
-            let p = res.unwrap();
-            result.push(serde_json::to_string(&p).unwrap());
+        match node_option {
+            Some(node) => {
+                result =
+                    node.node_get_value_history_range(args[1], args[2], args[3], args[4], args[5]);
+                insert_node_container(node);
+            }
+            None => {
+                println!("Node not found");
+            }
         }
+
         HttpResponse {
             status: String::from("HTTP/2 200 OK"),
             content_type: String::from("Content-Type: 'text/plain'"),

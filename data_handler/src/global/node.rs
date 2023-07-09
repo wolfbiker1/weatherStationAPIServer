@@ -42,11 +42,13 @@ pub mod node_info {
         fn process_events(&self, node_number: u8) {
             (self.check_registration)(node_number);
         }
+
         pub fn update_timestamp(&mut self) {
             let timestamp_as_utc: DateTime<Utc> = SystemTime::now().into();
 
             self.last_update = Some(timestamp_as_utc);
         }
+
         pub fn get_fields(&self) -> Vec<&'static str> {
             self.fields.clone()
         }
@@ -57,14 +59,38 @@ pub mod node_info {
             }
         }
 
-        pub fn node_get_value_history(&self, table: &str, hours_back: chrono::DateTime<chrono::Local>, minute_offset: chrono::DateTime<chrono::Local>) -> Vec<String> {
-            self.database_instance.db_query_map(table, hours_back, minute_offset)
+        pub fn node_get_value_last24hours(
+            &self,
+            table: &str,
+            hours_back: chrono::DateTime<chrono::Local>,
+            minute_offset: chrono::DateTime<chrono::Local>,
+        ) -> Vec<String> {
+            self.database_instance
+                .db_query_last24hours(table, hours_back, minute_offset)
+        }
+
+        pub fn node_get_value_history_range(
+            &self,
+            field: &str,
+            left_bound_h: &str,
+            left_bound_min: &str,
+            right_bound_h: &str,
+            right_bound_min: &str,
+        ) -> Vec<String> {
+            self.database_instance.db_query_history_range(
+                field,
+                left_bound_h,
+                left_bound_min,
+                right_bound_h,
+                right_bound_min,
+            )
         }
 
         pub fn node_insert_measurement(&self, table: &str, value: f64, node_number: u8) {
             self.database_instance
                 .db_insert_measurements(table, value, node_number);
         }
+        
         pub fn node_update_current(&mut self, field: &str, value: f64) {
             match field {
                 "temperature" => self.current_values.temperature = value,

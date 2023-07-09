@@ -19,37 +19,21 @@ pub mod route_handler {
             history::history_path_handler::barchart_values,
         ),
         (
-            ("GET", "/past/for", "/:nodenumber/:field/:hours"),
+            ("GET", "/past/for", "/:node_number/:field/:hours"),
             history::history_path_handler::get_past_value,
         ),
-        // (
-        //     ("GET", "/current", "/:location"),
-        //     current::get_all_current_fields,
-        // ),
         (
             (
                 "GET",
                 "/hist_range",
-                "/:field/:date_start/:time_start/:date_end/:time_end",
+                ":node_number/:field/:date_start/:time_start/:date_end/:time_end",
             ),
             history::history_path_handler::history_range,
         ),
         (
-            ("GET", "/current", "/:field/:location"),
+            ("GET", "/current", "/:field/:node_number"),
             current::get_current_value,
         ),
-        // (
-        //     ("GET", "/current", "/:pressure/:location"),
-        //     current::get_current_value,
-        // ),
-        // (
-        //     ("GET", "/current", "/:humidity/:location"),
-        //     current::get_current_value,
-        // ),
-        // (
-        //     ("GET", "/current", "/:brightness/:location"),
-        //     current::get_current_value,
-        // ),
     ];
 
     const POST_ROUTES_WITH_PARAM: [(RequestIdentifierWithParam, RequestHandlerWithParam); 1] = [(

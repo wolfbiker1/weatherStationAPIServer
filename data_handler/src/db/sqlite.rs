@@ -65,56 +65,95 @@ pub mod database_module {
                 }
             }
         }
-        // @todo: split content to db handling - data handling
-        pub fn db_query_map(
+        // @todo: split content to db handling - data handling.
+        // @todo: remove rendunant code stuff!!!!!
+        pub fn db_query_last24hours(
             &self,
             table: &str,
             hours_back: chrono::DateTime<chrono::Local>,
             minute_offset: chrono::DateTime<chrono::Local>,
         ) -> Vec<String> {
-        let query: String = format!(
-            "select * from {} where time < '{}' and time > '{}'",
-            table, hours_back, minute_offset
-        );
+            let query: String = format!(
+                "select * from {} where time < '{}' and time > '{}'",
+                table, hours_back, minute_offset
+            );
 
-        // @todo
-        let mut stmt = self.database_instance.as_ref().unwrap().prepare(&query).unwrap();
-        let res_iter = stmt.query_map([], |row| {
-            let p = QueryResult {
-                date_of_record: row.get(0).unwrap(),
-                value: row.get(1).unwrap(),
-            };
-            Ok(p)
+            // @todo
+            let mut stmt = self
+                .database_instance
+                .as_ref()
+                .unwrap()
+                .prepare(&query)
+                .unwrap();
+            let res_iter = stmt.query_map([], |row| {
+                let p = QueryResult {
+                    date_of_record: row.get(0).unwrap(),
+                    value: row.get(1).unwrap(),
+                };
+                Ok(p)
+            });
+            let mut result: Vec<String> = Vec::new();
+            for res in res_iter.unwrap() {
+                let p = res.unwrap();
+
+                result.push(serde_json::to_string(&p).unwrap());
+            }
+            result
+        }
+
+        pub fn db_query_history_range(
+            &self,
+            field: &str,
+            left_bound_h: &str,
+            left_bound_min: &str,
+            right_bound_h: &str,
+            right_bound_min: &str,
+        ) -> Vec<String> {
+            let query: String = format!(
+                "select * from {} where time > '{} {}' and time < '{} {}'",
+                field, left_bound_h, left_bound_min, right_bound_h, right_bound_min
+            );
+
+            let mut stmt = self
+                .database_instance
+                .as_ref()
+                .unwrap()
+                .prepare(&query)
+                .unwrap();
+            let mut result: Vec<String> = Vec::new();
+            let res_iter = stmt.query_map([], |row| {
+                let p = QueryResult {
+                    date_of_record: row.get(0).unwrap(),
+                    value: row.get(1).unwrap(),
+                };
+                Ok(p)
+            });
+            for res in res_iter.unwrap() {
+                let p = res.unwrap();
+                result.push(serde_json::to_string(&p).unwrap());
+            }
+            result
+        }
+    }
+
+    pub fn insert_in_db(table_name: &str, value: f64, origin: u8) {
+        let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
+            panic!("Could not open database, reason: '{}'", error);
         });
-        let mut result: Vec<String> = Vec::new();
-        for res in res_iter.unwrap() {
-            let p = res.unwrap();
 
-            result.push(serde_json::to_string(&p).unwrap());
-        }
-        result
-    }
-}
-
-pub fn insert_in_db(table_name: &str, value: f64, origin: u8) {
-    let conn = Connection::open("./data/measurements.db").unwrap_or_else(|error| {
-        panic!("Could not open database, reason: '{}'", error);
-    });
-
-    let query: String = format!(
-        "insert into {} (time, value, origin) values (datetime('now','localtime'), {}, {})",
-        table_name, value, origin
-    );
-    let res = conn.execute(&query, params![]);
-    match res {
-        Ok(_) => {}
-        Err(msg) => {
-            println!(
-                "Could not insert value from {}, reason: '{}'",
-                table_name, msg
-            )
+        let query: String = format!(
+            "insert into {} (time, value, origin) values (datetime('now','localtime'), {}, {})",
+            table_name, value, origin
+        );
+        let res = conn.execute(&query, params![]);
+        match res {
+            Ok(_) => {}
+            Err(msg) => {
+                println!(
+                    "Could not insert value from {}, reason: '{}'",
+                    table_name, msg
+                )
+            }
         }
     }
-}
-
 }
