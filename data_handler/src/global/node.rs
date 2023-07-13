@@ -9,10 +9,12 @@ pub mod node_info {
     use chrono::{DateTime, Utc};
     use lazy_static::lazy_static;
     use std::collections::HashMap;
+    use std::sync::{Arc, Mutex, MutexGuard};
 
     use std::time::SystemTime;
 
     const FILE_NAME: &str = "./registered_nodes";
+    static mut REGISTERED_NODES: Mutex<Vec<NodeInfo>> = Mutex::new(Vec::new());
 
     pub struct CurrentValues {
         pub temperature: f64,
@@ -126,27 +128,31 @@ pub mod node_info {
         };
     }
 
-    // #[derive(debug)]
-    static mut REGISTERED_NODES: Vec<NodeInfo> = Vec::new();
-
-    pub fn get_node_container(node_number: u8) -> Option<NodeInfo> {
-        println!("Pop node {}", node_number);
+    fn get_vector_access<'a>() -> MutexGuard<'a, Vec<NodeInfo>>  {
         unsafe {
-            let index = REGISTERED_NODES
-                .iter()
-                .position(|x| x.node_number == node_number);
-            match index {
-                Some(i) => Some(REGISTERED_NODES.remove(i)),
-                None => None,
-            }
+            REGISTERED_NODES.lock().unwrap()
         }
     }
 
-    pub fn insert_node_container(node: NodeInfo) {
-        println!("Push node {}", node.node_get_number());
-        unsafe {
-            REGISTERED_NODES.push(node);
+    pub fn get_node_container<'a>(node_number: u8) -> Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> {
+        let mut node_vector_guard = get_vector_access();
+        let vec_protected = &mut *node_vector_guard;
+        let index = vec_protected
+            .iter()
+            .position(|x| x.node_number == node_number);
+        match index {
+            Some(i) => {
+                let node: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> = Some((vec_protected.remove(i), node_vector_guard));
+                node
+            }
+            None => None,
         }
+    }
+
+    pub fn insert_node_container<'a>(node: NodeInfo, mut node_guard: MutexGuard<'a, Vec<NodeInfo>>) {
+        let vec_protected = &mut *node_guard;
+        vec_protected.push(node);
+        drop(node_guard);
     }
 
     pub fn init_map() {
@@ -179,9 +185,12 @@ pub mod node_info {
 
     pub fn is_registered(number: u8) -> bool {
         unsafe {
-            let node_already_registered = REGISTERED_NODES
+            let mut node_vector_guard = REGISTERED_NODES.lock().unwrap();
+            let vec_protected = &mut *node_vector_guard;
+            let node_already_registered = vec_protected
                 .iter()
                 .find(|&x| x.node_number == number && x.registered);
+
             match node_already_registered {
                 Some(_) => true,
                 None => false,
@@ -236,8 +245,12 @@ pub mod node_info {
         };
 
         node_info.node_init_db();
+
         unsafe {
-            REGISTERED_NODES.push(node_info);
+            let mut node_vector_guard = REGISTERED_NODES.lock().unwrap();
+            let vec_protected = &mut *node_vector_guard;
+            vec_protected.push(node_info);
+            drop(vec_protected);
         }
 
         if !from_cache {

@@ -2,6 +2,7 @@ use super::super::global::node::node_info::{get_node_container, insert_node_cont
 use ::inet::protocoll::http::HttpResponse;
 use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
+use std::sync::{Arc, Mutex, MutexGuard};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Data {
@@ -22,23 +23,26 @@ pub fn get_current_value(args: Vec<&str>) -> HttpResponse {
     }
 }
 
-fn fetch_value(field: &str, node_number: &str) -> f64 {
+fn fetch_value<'a>(field: &str, node_number: &str) -> f64 {
     let node_number = match node_number.parse::<u8>() {
         Ok(n) => n,
-        Err(e) => { println!("error: {}, value is {}", e, node_number); 255 },
+        Err(e) => {
+            println!("error: {}, value is {}", e, node_number);
+            255
+        }
     };
-    let node_option: Option<NodeInfo> = get_node_container(node_number);
+    let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> = get_node_container(node_number);
 
-    match node_option {
+    match node_box {
         Some(node) => {
             let val = match field {
-                "temperature" => node.current_values.temperature,
+                "temperature" => node.0.current_values.temperature,
                 "pressure" => 255_f64,
-                "humidity" => node.current_values.humidity,
+                "humidity" => node.0.current_values.humidity,
                 "brightness" => 255_f64,
                 &_ => 255_f64,
             };
-            insert_node_container(node);
+            insert_node_container(node.0, node.1);
             val
         }
         None => {

@@ -13,6 +13,7 @@ pub mod history_path_handler {
     use chrono::Local;
     use rusqlite::Connection;
     use serde::{Deserialize, Serialize};
+    use std::sync::MutexGuard;
     use std::str;
     #[derive(Debug, Serialize, Deserialize)]
     struct QueryValueOnly {
@@ -30,17 +31,17 @@ pub mod history_path_handler {
     /// # Returns
     /// * `HttpResponse` - A HttpResponse object containing the result.
     ///
-    pub fn available_dates(args: Vec<&str>) -> HttpResponse {
+    pub fn available_dates<'a>(args: Vec<&str>) -> HttpResponse {
         let node_number = match args[0].parse::<u8>() {
             Ok(n) => n,
             Err(_) => 255,
         };
-        let node_option: Option<NodeInfo> = get_node_container(node_number);
+        let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> = get_node_container(node_number);
         let mut dt = DatesCollection::new();
-        match node_option {
+        match node_box {
             Some(node) => {
-                dt = node.node_get_available_dates();
-                insert_node_container(node);
+                dt = node.0.node_get_available_dates();
+                insert_node_container(node.0, node.1);
             }
             None => {
                 println!("Node not found in fn 'available_dates'");
@@ -112,17 +113,17 @@ pub mod history_path_handler {
     /// # Returns
     /// * `HttpResponse` - A HttpResponse object containing the result.
     ///
-    pub fn peaks(args: Vec<&str>) -> HttpResponse {
+    pub fn peaks<'a>(args: Vec<&str>) -> HttpResponse {
         let node_number = match args[0].parse::<u8>() {
             Ok(n) => n,
             Err(_) => 255,
         };
-        let node_option: Option<NodeInfo> = get_node_container(node_number);
+        let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> = get_node_container(node_number);
         let mut result: Vec<String> = Vec::new();
-        match node_option {
+        match node_box {
             Some(node) => {
-                result = node.node_get_value_peaks();
-                insert_node_container(node);
+                result = node.0.node_get_value_peaks();
+                insert_node_container(node.0, node.1);
             }
             None => {
                 println!("Node not found in fn 'peaks'");
@@ -149,20 +150,20 @@ pub mod history_path_handler {
     /// # Returns
     /// * `HttpResponse` - A HttpResponse object containing the result.
     ///
-    pub fn get_past_value(args: Vec<&str>) -> HttpResponse {
+    pub fn get_past_value<'a>(args: Vec<&str>) -> HttpResponse {
         let node_number = match args[0].parse::<u8>() {
             Ok(n) => n,
             Err(_) => 255,
         };
-        let node_option: Option<NodeInfo> = get_node_container(node_number);
+        let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> = get_node_container(node_number);
         let now = Local::now();
         let n_hours_back = now - Duration::hours(args[2].parse::<u32>().unwrap() as i64);
 
         let mut result: Vec<String> = Vec::new();
-        match node_option {
+        match node_box {
             Some(node) => {
-                result = node.node_get_value_last24hours(args[1], now, n_hours_back);
-                insert_node_container(node);
+                result = node.0.node_get_value_last24hours(args[1], now, n_hours_back);
+                insert_node_container(node.0, node.1);
             }
             None => {
                 println!("Node not found in fn 'get_past_value'");
@@ -232,19 +233,19 @@ pub mod history_path_handler {
     /// # Returns
     /// * `HttpResponse` - A HttpResponse object containing the result.
     ///
-    pub fn history_range(args: Vec<&str>) -> HttpResponse {
+    pub fn history_range<'a>(args: Vec<&str>) -> HttpResponse {
         let node_number = match args[0].parse::<u8>() {
             Ok(n) => n,
             Err(_) => 255,
         };
-        let node_option: Option<NodeInfo> = get_node_container(node_number);
+        let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> = get_node_container(node_number);
 
         let mut result: Vec<String> = Vec::new();
-        match node_option {
+        match node_box {
             Some(node) => {
                 result =
-                    node.node_get_value_history_range(args[1], args[2], args[3], args[4], args[5]);
-                insert_node_container(node);
+                    node.0.node_get_value_history_range(args[1], args[2], args[3], args[4], args[5]);
+                insert_node_container(node.0,node.1);
             }
             None => {
                 println!("Node not found in fn 'history_range'");
