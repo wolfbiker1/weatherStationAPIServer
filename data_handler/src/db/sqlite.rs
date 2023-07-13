@@ -69,27 +69,38 @@ pub mod database_module {
                 "select * from {} where time < '{}' and time > '{}'",
                 table, hours_back, minute_offset
             );
-
-            // @todo
-            let mut stmt = self
-                .database_instance
-                .as_ref()
-                .unwrap()
-                .prepare(&query)
-                .unwrap();
-            let res_iter = stmt.query_map([], |row| {
-                let p = QueryResult {
-                    date_of_record: row.get(0).unwrap(),
-                    value: row.get(1).unwrap(),
-                };
-                Ok(p)
-            });
             let mut result: Vec<String> = Vec::new();
-            for res in res_iter.unwrap() {
-                let p = res.unwrap();
 
-                result.push(serde_json::to_string(&p).unwrap());
+            let db_ref = self.database_instance.as_ref();
+
+            let prepared_stmt = match db_ref {
+                Ok(self_ref) => Ok(self_ref.prepare(&query)),
+                Err(e) => {
+                    println!("{}", e);
+                    Err(e)
+                }
+            };
+
+            match prepared_stmt.unwrap() {
+                Ok(mut stmt) => {
+                    let res_iter = stmt.query_map([], |row| {
+                        let p = QueryResult {
+                            date_of_record: row.get(0).unwrap(),
+                            value: row.get(1).unwrap(),
+                        };
+                        Ok(p)
+                    });
+                    for res in res_iter.unwrap() {
+                        let p = res.unwrap();
+
+                        result.push(serde_json::to_string(&p).unwrap());
+                    }
+                }
+                Err(e) => {
+                    println!("{} , origin is 'db_query_last24hours`", e);
+                }
             }
+
             result
         }
 
@@ -105,25 +116,38 @@ pub mod database_module {
                 "select * from {} where time > '{} {}' and time < '{} {}'",
                 field, left_bound_h, left_bound_min, right_bound_h, right_bound_min
             );
-
-            let mut stmt = self
-                .database_instance
-                .as_ref()
-                .unwrap()
-                .prepare(&query)
-                .unwrap();
             let mut result: Vec<String> = Vec::new();
-            let res_iter = stmt.query_map([], |row| {
-                let p = QueryResult {
-                    date_of_record: row.get(0).unwrap(),
-                    value: row.get(1).unwrap(),
-                };
-                Ok(p)
-            });
-            for res in res_iter.unwrap() {
-                let p = res.unwrap();
-                result.push(serde_json::to_string(&p).unwrap());
+
+            let db_ref = self.database_instance.as_ref();
+
+            let prepared_stmt = match db_ref {
+                Ok(self_ref) => Ok(self_ref.prepare(&query)),
+                Err(e) => {
+                    println!("{}", e);
+                    Err(e)
+                }
+            };
+
+            match prepared_stmt.unwrap() {
+                Ok(mut stmt) => {
+                    let res_iter = stmt.query_map([], |row| {
+                        let p = QueryResult {
+                            date_of_record: row.get(0).unwrap(),
+                            value: row.get(1).unwrap(),
+                        };
+                        Ok(p)
+                    });
+                    for res in res_iter.unwrap() {
+                        let p = res.unwrap();
+
+                        result.push(serde_json::to_string(&p).unwrap());
+                    }
+                }
+                Err(e) => {
+                    println!("{}, origin is `db_query_history_range` ", e);
+                }
             }
+
             result
         }
 
@@ -136,24 +160,37 @@ pub mod database_module {
             for f in available_fields {
                 let mut result: Vec<String> = Vec::new();
                 let query: String = format!("select distinct date(time) from {}", f);
-                let mut stmt = self
-                    .database_instance
-                    .as_ref()
-                    .unwrap()
-                    .prepare(&query)
-                    .unwrap();
-                let date_iter = stmt.query_map([], |row| {
-                    let d = Dates {
-                        date: row.get(0).unwrap(),
-                    };
-                    Ok(d)
-                });
-                for date in date_iter.unwrap() {
-                    let p = date.unwrap();
-                    result.push(p.date);
+
+                let db_ref = self.database_instance.as_ref();
+
+                let prepared_stmt = match db_ref {
+                    Ok(self_ref) => Ok(self_ref.prepare(&query)),
+                    Err(e) => {
+                        println!("{}", e);
+                        Err(e)
+                    }
+                };
+
+                match prepared_stmt.unwrap() {
+                    Ok(mut stmt) => {
+                        let date_iter = stmt.query_map([], |row| {
+                            let d = Dates {
+                                date: row.get(0).unwrap(),
+                            };
+                            Ok(d)
+                        });
+                        for date in date_iter.unwrap() {
+                            let p = date.unwrap();
+                            result.push(p.date);
+                        }
+                        dt = dt.change_value(f, result);
+                    }
+                    Err(e) => {
+                        println!("{}", e);
+                    }
                 }
-                dt = dt.change_value(f, result);
             }
+
             dt
         }
 
@@ -163,30 +200,39 @@ pub mod database_module {
 
             for field in available_fields {
                 let query: String = format!("select *, max(value) from {} union select *, min(value) from {} union select *,avg(value) from {}  order by value", field, field, field);
+                let db_ref = self.database_instance.as_ref();
 
-                let mut stmt = self
-                    .database_instance
-                    .as_ref()
-                    .unwrap()
-                    .prepare(&query)
-                    .unwrap();
+                let prepared_stmt = match db_ref {
+                    Ok(self_ref) => Ok(self_ref.prepare(&query)),
+                    Err(e) => {
+                        println!("{} , origin is 'db_query_peaks`", e);
+                        Err(e)
+                    }
+                };
 
-                let peak_iter = stmt.query_map([], |row| {
-                    let p = Peaks {
-                        date: row.get(0).unwrap(),
-                        val: row.get(2).unwrap(),
-                    };
-                    Ok(p)
-                });
-                for peak in peak_iter.unwrap().enumerate() {
-                    let p = peak.1.unwrap();
-                    let peak_as_json = json!({
-                        *field: {
-                            "ident": t[peak.0],
-                        "content": p
+                match prepared_stmt.unwrap() {
+                    Ok(mut stmt) => {
+                        let peak_iter = stmt.query_map([], |row| {
+                            let p = Peaks {
+                                date: row.get(0).unwrap(),
+                                val: row.get(2).unwrap(),
+                            };
+                            Ok(p)
+                        });
+                        for peak in peak_iter.unwrap().enumerate() {
+                            let p = peak.1.unwrap();
+                            let peak_as_json = json!({
+                                *field: {
+                                    "ident": t[peak.0],
+                                "content": p
+                                }
+                            });
+                            result.push(serde_json::to_string(&peak_as_json).unwrap());
                         }
-                    });
-                    result.push(serde_json::to_string(&peak_as_json).unwrap());
+                    }
+                    Err(e) => {
+                        println!("{}", e);
+                    }
                 }
             }
             result

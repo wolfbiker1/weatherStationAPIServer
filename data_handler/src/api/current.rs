@@ -25,7 +25,7 @@ pub fn get_current_value(args: Vec<&str>) -> HttpResponse {
 fn fetch_value(field: &str, node_number: &str) -> f64 {
     let node_number = match node_number.parse::<u8>() {
         Ok(n) => n,
-        Err(_) => 255,
+        Err(e) => { println!("error: {}, value is {}", e, node_number); 255 },
     };
     let node_option: Option<NodeInfo> = get_node_container(node_number);
 
@@ -42,7 +42,7 @@ fn fetch_value(field: &str, node_number: &str) -> f64 {
             val
         }
         None => {
-            println!("Node not found");
+            println!("Node {} not found in fn 'fetch_value'", node_number);
             255_f64
         }
     }

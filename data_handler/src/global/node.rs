@@ -130,6 +130,7 @@ pub mod node_info {
     static mut REGISTERED_NODES: Vec<NodeInfo> = Vec::new();
 
     pub fn get_node_container(node_number: u8) -> Option<NodeInfo> {
+        println!("Pop node {}", node_number);
         unsafe {
             let index = REGISTERED_NODES
                 .iter()
@@ -142,6 +143,7 @@ pub mod node_info {
     }
 
     pub fn insert_node_container(node: NodeInfo) {
+        println!("Push node {}", node.node_get_number());
         unsafe {
             REGISTERED_NODES.push(node);
         }

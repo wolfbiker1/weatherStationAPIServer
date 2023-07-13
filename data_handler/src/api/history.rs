@@ -43,7 +43,7 @@ pub mod history_path_handler {
                 insert_node_container(node);
             }
             None => {
-                println!("Node not found");
+                println!("Node not found in fn 'available_dates'");
             }
         }
 
@@ -125,7 +125,7 @@ pub mod history_path_handler {
                 insert_node_container(node);
             }
             None => {
-                println!("Node not found");
+                println!("Node not found in fn 'peaks'");
             }
         }
 
@@ -165,7 +165,7 @@ pub mod history_path_handler {
                 insert_node_container(node);
             }
             None => {
-                println!("Node not found");
+                println!("Node not found in fn 'get_past_value'");
             }
         }
 
@@ -247,7 +247,7 @@ pub mod history_path_handler {
                 insert_node_container(node);
             }
             None => {
-                println!("Node not found");
+                println!("Node not found in fn 'history_range'");
             }
         }
 
