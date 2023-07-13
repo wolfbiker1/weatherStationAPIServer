@@ -14,7 +14,11 @@ pub mod node_info {
     use std::time::SystemTime;
 
     const FILE_NAME: &str = "./registered_nodes";
-    static mut REGISTERED_NODES: Mutex<Vec<NodeInfo>> = Mutex::new(Vec::new());
+    lazy_static! {
+        static ref REGISTERED_NODES: Mutex<Vec<NodeInfo>> = {
+            Mutex::new(Vec::new())
+        };
+    }
 
     pub struct CurrentValues {
         pub temperature: f64,
