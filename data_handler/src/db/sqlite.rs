@@ -2,7 +2,7 @@ use super::super::global::types;
 pub mod database_module {
     use super::types::{Dates, DatesCollection, Peaks, QueryResult};
     use rusqlite::{params, Connection, Result};
-    use serde_json::json;
+    use serde_json::{json, Map, Value};
 
     pub struct DatabaseInfo {
         database_instance: Result<rusqlite::Connection, rusqlite::Error>,
@@ -196,10 +196,11 @@ pub mod database_module {
 
         pub fn db_query_peaks(&self, available_fields: &Vec<&'static str>) -> Vec<String> {
             let mut result: Vec<String> = Vec::new();
-            let t: Vec<&str> = vec!["min", "avg", "max"];
+            let value_types: Vec<&str> = vec!["min", "avg", "max"];
 
             for field in available_fields {
                 let query: String = format!("select *, max(value) from {} union select *, min(value) from {} union select *,avg(value) from {}  order by value", field, field, field);
+                println!("{}", query);
                 let db_ref = self.database_instance.as_ref();
 
                 let prepared_stmt = match db_ref {
@@ -209,26 +210,43 @@ pub mod database_module {
                         Err(e)
                     }
                 };
+                let mut toplevel_map = Map::new();
 
+                let mut map = Map::new();
                 match prepared_stmt.unwrap() {
                     Ok(mut stmt) => {
                         let peak_iter = stmt.query_map([], |row| {
-                            let p = Peaks {
+                            let peak_data = Peaks {
                                 date: row.get(0).unwrap(),
-                                val: row.get(2).unwrap(),
+                                val: row.get(3).unwrap(),
                             };
-                            Ok(p)
+                            Ok(peak_data)
                         });
-                        for peak in peak_iter.unwrap().enumerate() {
-                            let p = peak.1.unwrap();
-                            let peak_as_json = json!({
-                                *field: {
-                                    "ident": t[peak.0],
-                                "content": p
-                                }
-                            });
-                            result.push(serde_json::to_string(&peak_as_json).unwrap());
+                        let tmp_peak: Vec<serde_json::Value> = Vec::new();
+
+                        for peak_obj in peak_iter.unwrap().enumerate() {
+                            map.insert(String::from(value_types[peak_obj.0]), Value::String(peak_obj.1.unwrap().val.to_string()));
                         }
+                        let obj =  Value::Object(map);
+                        println!("{}", obj);
+                        toplevel_map.insert(String::from(*field), obj);
+                        // let peak_as_json: serde_json::Value = json!({
+                            // *field : obj
+                        // });
+
+                        let peak_as_json: serde_json::Value = Value::Object(toplevel_map);
+
+                        result.push(serde_json::to_string(&peak_as_json).unwrap());
+                        // for peak in peak_iter.unwrap() { // iterates over min, avg, max
+                        //     // println!("peak? {:?}", peak.unwrap());
+                        //     let peak_as_json: serde_json::Value = json!({
+                        //         {
+                        //             "ident": "t[peak]",
+                        //             "content": peak
+                        //         }
+                        //     });
+                        //     // result.push(serde_json::to_string(&peak_as_json).unwrap());
+                        // }
                     }
                     Err(e) => {
                         println!("{}", e);
