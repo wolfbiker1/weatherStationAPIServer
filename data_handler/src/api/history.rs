@@ -13,8 +13,8 @@ pub mod history_path_handler {
     use chrono::Local;
     use rusqlite::Connection;
     use serde::{Deserialize, Serialize};
-    use std::sync::MutexGuard;
     use std::str;
+    use std::sync::MutexGuard;
     #[derive(Debug, Serialize, Deserialize)]
     struct QueryValueOnly {
         value: f64,
@@ -36,7 +36,8 @@ pub mod history_path_handler {
             Ok(n) => n,
             Err(_) => 255,
         };
-        let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> = get_node_container(node_number);
+        let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> =
+            get_node_container(node_number);
         let mut dt = DatesCollection::new();
         match node_box {
             Some(node) => {
@@ -118,7 +119,8 @@ pub mod history_path_handler {
             Ok(n) => n,
             Err(_) => 255,
         };
-        let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> = get_node_container(node_number);
+        let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> =
+            get_node_container(node_number);
         let mut result: Vec<String> = Vec::new();
         match node_box {
             Some(node) => {
@@ -155,14 +157,17 @@ pub mod history_path_handler {
             Ok(n) => n,
             Err(_) => 255,
         };
-        let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> = get_node_container(node_number);
+        let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> =
+            get_node_container(node_number);
         let now = Local::now();
         let n_hours_back = now - Duration::hours(args[2].parse::<u32>().unwrap() as i64);
 
         let mut result: Vec<String> = Vec::new();
         match node_box {
             Some(node) => {
-                result = node.0.node_get_value_last24hours(args[1], now, n_hours_back);
+                result = node
+                    .0
+                    .node_get_value_last24hours(args[1], now, n_hours_back);
                 insert_node_container(node.0, node.1);
             }
             None => {
@@ -238,14 +243,16 @@ pub mod history_path_handler {
             Ok(n) => n,
             Err(_) => 255,
         };
-        let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> = get_node_container(node_number);
+        let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> =
+            get_node_container(node_number);
 
         let mut result: Vec<String> = Vec::new();
         match node_box {
             Some(node) => {
-                result =
-                    node.0.node_get_value_history_range(args[1], args[2], args[3], args[4], args[5]);
-                insert_node_container(node.0,node.1);
+                result = node
+                    .0
+                    .node_get_value_history_range(args[1], args[2], args[3], args[4], args[5]);
+                insert_node_container(node.0, node.1);
             }
             None => {
                 println!("Node not found in fn 'history_range'");

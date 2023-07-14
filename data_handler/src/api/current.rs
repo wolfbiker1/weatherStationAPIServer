@@ -31,7 +31,8 @@ fn fetch_value<'a>(field: &str, node_number: &str) -> f64 {
             255
         }
     };
-    let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> = get_node_container(node_number);
+    let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> =
+        get_node_container(node_number);
 
     match node_box {
         Some(node) => {

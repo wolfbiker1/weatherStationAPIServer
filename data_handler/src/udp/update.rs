@@ -14,7 +14,8 @@ pub fn listen_for_node_measurement(udp_receiver: Receiver<Vec<u8>>) {
 }
 
 fn apply_current_node_measurements<'a>(measurements: NodeMeasurements) {
-    let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> = get_node_container(measurements.node_number);
+    let node_box: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> =
+        get_node_container(measurements.node_number);
     match node_box {
         Some(mut node) => {
             node.0.update_timestamp();
@@ -27,7 +28,8 @@ fn apply_current_node_measurements<'a>(measurements: NodeMeasurements) {
                     _ => 0.0,
                 };
                 node.0.node_update_current(field, value);
-                node.0.node_insert_measurement(&field, value, measurements.node_number);
+                node.0
+                    .node_insert_measurement(&field, value, measurements.node_number);
 
                 let res = update_static_values(&field, value, measurements.node_number);
 

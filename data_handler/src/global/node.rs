@@ -15,9 +15,7 @@ pub mod node_info {
 
     const FILE_NAME: &str = "./registered_nodes";
     lazy_static! {
-        static ref REGISTERED_NODES: Mutex<Vec<NodeInfo>> = {
-            Mutex::new(Vec::new())
-        };
+        static ref REGISTERED_NODES: Mutex<Vec<NodeInfo>> = { Mutex::new(Vec::new()) };
     }
 
     pub struct CurrentValues {
@@ -132,13 +130,13 @@ pub mod node_info {
         };
     }
 
-    fn get_vector_access<'a>() -> MutexGuard<'a, Vec<NodeInfo>>  {
-        unsafe {
-            REGISTERED_NODES.lock().unwrap()
-        }
+    fn get_vector_access<'a>() -> MutexGuard<'a, Vec<NodeInfo>> {
+        unsafe { REGISTERED_NODES.lock().unwrap() }
     }
 
-    pub fn get_node_container<'a>(node_number: u8) -> Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> {
+    pub fn get_node_container<'a>(
+        node_number: u8,
+    ) -> Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> {
         let mut node_vector_guard = get_vector_access();
         let vec_protected = &mut *node_vector_guard;
         let index = vec_protected
@@ -146,14 +144,18 @@ pub mod node_info {
             .position(|x| x.node_number == node_number);
         match index {
             Some(i) => {
-                let node: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> = Some((vec_protected.remove(i), node_vector_guard));
+                let node: Option<(NodeInfo, MutexGuard<'a, Vec<NodeInfo>>)> =
+                    Some((vec_protected.remove(i), node_vector_guard));
                 node
             }
             None => None,
         }
     }
 
-    pub fn insert_node_container<'a>(node: NodeInfo, mut node_guard: MutexGuard<'a, Vec<NodeInfo>>) {
+    pub fn insert_node_container<'a>(
+        node: NodeInfo,
+        mut node_guard: MutexGuard<'a, Vec<NodeInfo>>,
+    ) {
         let vec_protected = &mut *node_guard;
         vec_protected.push(node);
         drop(node_guard);

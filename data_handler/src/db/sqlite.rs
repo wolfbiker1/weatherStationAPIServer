@@ -222,11 +222,14 @@ pub mod database_module {
                             };
                             Ok(peak_data)
                         });
-                        
+
                         for peak_obj in peak_iter.unwrap().enumerate() {
-                            map.insert(String::from(value_types[peak_obj.0]), Value::String(peak_obj.1.unwrap().val.to_string()));
+                            map.insert(
+                                String::from(value_types[peak_obj.0]),
+                                Value::String(peak_obj.1.unwrap().val.to_string()),
+                            );
                         }
-                        let obj =  Value::Object(map);
+                        let obj = Value::Object(map);
                         toplevel_map.insert(String::from(*field), obj);
 
                         let peak_as_json: serde_json::Value = Value::Object(toplevel_map);
