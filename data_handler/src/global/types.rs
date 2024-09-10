@@ -55,3 +55,9 @@ impl DatesCollection {
         self
     }
 }
+
+pub enum FieldValue {
+    Float(f64),
+    U8(u8),
+    U16(u16),
+}

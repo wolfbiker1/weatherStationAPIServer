@@ -7,6 +7,7 @@ use std::sync::mpsc::channel;
 use std::{env, thread};
 //@todo: unclean
 use data_handler::global::node;
+use std::fs;
 
 fn main() {
     let (udp_sender, udp_receiver) = channel();
@@ -34,12 +35,18 @@ fn main() {
         println!("ramdisk does not exist, creating one...!");
 
         /********* FS PREPARATION *************/
+        if let Err(e) = fs::create_dir_all("./data") {
+            eprintln!("Failed to create directory: {}", e);
+            return;
+        }
+
         // mount ramfs
         Command::new("sh")
             .arg("-c")
             .arg("sudo mount -t ramfs ramfs ./data")
             .output()
             .expect("Failed");
+
         // owned by current user
         Command::new("sh")
             .arg("-c")

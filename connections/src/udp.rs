@@ -11,7 +11,6 @@ pub fn start_udp_listener(ip: String, port: String, sender: Sender<Vec<u8>>) -> 
 
         let mut measure_data: Vec<u8> = vec![0; buf[0] as usize];
         socket.recv_from(&mut measure_data).unwrap();
-
         sender.send(measure_data);
     }
 }

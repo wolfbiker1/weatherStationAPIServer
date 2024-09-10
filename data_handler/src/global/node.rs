@@ -5,6 +5,7 @@ pub mod node_info {
     use super::current::{append_to_file, create_file, read_file};
     use super::database_module::DatabaseInfo;
     use super::types::DatesCollection;
+    use super::types::FieldValue;
     use ::inet::protocoll::http::HttpResponse;
     use chrono::{DateTime, Utc};
     use lazy_static::lazy_static;
@@ -14,6 +15,13 @@ pub mod node_info {
     use std::time::SystemTime;
 
     const FILE_NAME: &str = "./registered_nodes";
+
+    // enum FieldValue {
+    //     Float(f64),
+    //     U8(u8),
+    //     U16(u16)
+    // }
+
     lazy_static! {
         static ref REGISTERED_NODES: Mutex<Vec<NodeInfo>> = { Mutex::new(Vec::new()) };
     }
@@ -21,6 +29,10 @@ pub mod node_info {
     pub struct CurrentValues {
         pub temperature: f64,
         pub humidity: f64,
+        pub batteryHealth: u16,
+        pub signalStrength: u8,
+        pub maxRetries: u8,
+        pub totalLostPackages: u8,
     }
 
     // #[derive(Debug)]
@@ -106,32 +118,112 @@ pub mod node_info {
                 .db_query_available_dates(self.fields.as_ref())
         }
 
-        pub fn node_insert_measurement(&self, table: &str, value: f64, node_number: u8) {
+        pub fn node_insert_measurement(&self, table: &str, value: FieldValue, node_number: u8) {
+            let value_as_f64 = match value {
+                FieldValue::Float(val) => val,       // Falls der Wert bereits ein f64 ist
+                FieldValue::U8(val) => val as f64, // u8 zu f64 umwandeln
+                FieldValue::U16(val) => val as f64 // u16 zu f64 umwandeln
+            };
             self.database_instance
-                .db_insert_measurements(table, value, node_number);
+                .db_insert_measurements(table, value_as_f64, node_number);
         }
 
-        pub fn node_update_current(&mut self, field: &str, value: f64) {
+        pub fn node_update_current(&mut self, field: &str, value: &FieldValue) {
             match field {
-                "temperature" => self.current_values.temperature = value,
-                "humidity" => self.current_values.humidity = value,
+                "temperature" => {
+                    if let FieldValue::Float(val) = value {
+                        self.current_values.temperature = *val;
+                    }
+                }
+                "humidity" => {
+                    if let FieldValue::Float(val) = value {
+                        self.current_values.humidity = *val;
+                    }
+                }
+                "signalStrength" => {
+                    if let FieldValue::U8(val) = value {
+                        self.current_values.signalStrength = *val;
+                    }
+                }
+                "maxRetries" => {
+                    if let FieldValue::U8(val) = value {
+                        self.current_values.maxRetries = *val;
+                    }
+                }
+                "totalLostPackages" => {
+                    if let FieldValue::U8(val) = value {
+                        self.current_values.totalLostPackages = *val;
+                    }
+                }
                 _ => {}
-            };
+            }
         }
     }
     lazy_static! {
         static ref NODE_MAPPING: HashMap<u8, (&'static str, Vec<&'static str>)> = {
             let mut mapping = HashMap::new();
-            mapping.insert(0xA0, ("Bad", vec!["temperature", "humidity"]));
-            mapping.insert(0xA1, ("Wohnzimmer", vec!["temperature", "humidity"]));
-            mapping.insert(0xA2, ("Schlafzimmer", vec!["temperature", "humidity"]));
-            mapping.insert(0xA3, ("Balkon", vec!["temperature", "humidity"]));
+            mapping.insert(
+                0xA0,
+                (
+                    "Bad",
+                    vec![
+                        "temperature",
+                        "humidity",
+                        "batteryHealth",
+                        "signalStrength",
+                        "maxRetries",
+                        "totalLostPackages",
+                    ],
+                ),
+            );
+            mapping.insert(
+                0xA1,
+                (
+                    "Wohnzimmer",
+                    vec![
+                        "temperature",
+                        "humidity",
+                        "batteryHealth",
+                        "signalStrength",
+                        "maxRetries",
+                        "totalLostPackages",
+                    ],
+                ),
+            );
+            mapping.insert(
+                0xA2,
+                (
+                    "Schlafzimmer",
+                    vec![
+                        "temperature",
+                        "humidity",
+                        "batteryHealth",
+                        "signalStrength",
+                        "maxRetries",
+                        "totalLostPackages",
+                    ],
+                ),
+            );
+            mapping.insert(
+                0xF,
+                (
+                    "Balkon",
+                    vec![
+                        "temperature",
+                        "humidity",
+                        "batteryHealth",
+                        "signalStrength",
+                        "maxRetries",
+                        "totalLostPackages",
+                    ],
+                ),
+            );
             mapping
         };
     }
 
     fn get_vector_access<'a>() -> MutexGuard<'a, Vec<NodeInfo>> {
-        unsafe { REGISTERED_NODES.lock().unwrap() }
+        REGISTERED_NODES.lock().unwrap()
     }
 
     pub fn get_node_container<'a>(
@@ -190,17 +282,15 @@ pub mod node_info {
     }
 
     pub fn is_registered(number: u8) -> bool {
-        unsafe {
-            let mut node_vector_guard = REGISTERED_NODES.lock().unwrap();
-            let vec_protected = &mut *node_vector_guard;
-            let node_already_registered = vec_protected
-                .iter()
-                .find(|&x| x.node_number == number && x.registered);
+        let mut node_vector_guard = REGISTERED_NODES.lock().unwrap();
+        let vec_protected = &mut *node_vector_guard;
+        let node_already_registered = vec_protected
+            .iter()
+            .find(|&x| x.node_number == number && x.registered);
 
-            match node_already_registered {
-                Some(_) => true,
-                None => false,
-            }
+        match node_already_registered {
+            Some(_) => true,
+            None => false,
         }
     }
 
@@ -246,18 +336,20 @@ pub mod node_info {
             current_values: CurrentValues {
                 temperature: 0.0,
                 humidity: 0.0,
+                batteryHealth: 0,
+                signalStrength: 0,
+                maxRetries: 0,
+                totalLostPackages: 0,
             },
             last_update: None,
         };
 
         node_info.node_init_db();
 
-        unsafe {
-            let mut node_vector_guard = REGISTERED_NODES.lock().unwrap();
-            let vec_protected = &mut *node_vector_guard;
-            vec_protected.push(node_info);
-            drop(vec_protected);
-        }
+        let mut node_vector_guard = REGISTERED_NODES.lock().unwrap();
+        let vec_protected = &mut *node_vector_guard;
+        vec_protected.push(node_info);
+        drop(vec_protected);
 
         if !from_cache {
             append_to_file(FILE_NAME, &number.to_string());
